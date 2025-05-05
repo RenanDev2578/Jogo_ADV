@@ -1,9 +1,8 @@
 package br.guessing.game;
 
-
 public class Facede {
-    private Jogo jogo;
 
+/*
     public Facede(String nomeJogador) {
         Jogador jogador = new Jogador(nomeJogador);
         Advinha advinha = new Advinha();
@@ -13,4 +12,6 @@ public class Facede {
     public void iniciar() {
         jogo.iniciarJogo();
     }
+
+ */
 }
