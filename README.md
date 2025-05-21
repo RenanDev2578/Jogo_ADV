@@ -1,5 +1,5 @@
 <p align="center">
-  <img alt="Guessing Game" src="./assets/img.png.png" width="25%">
+  <img alt="Guessing Game" src="./assets/img.png" width="25%">
 </p>
 
 <h1 align="center">🎮 Guessing Game 🕹️</h1> 
