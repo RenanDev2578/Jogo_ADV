@@ -9,10 +9,11 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 public class GuessingGameScreen implements Screen {
-
+    private final GameFacade facade;
     private final MainGame game;
     private final Jogador jogador;
     private final Advinha advinha;
@@ -29,11 +30,15 @@ public class GuessingGameScreen implements Screen {
     private final Label acertosLabel;
     private final TextButton proximaButton;
 
-    public GuessingGameScreen(MainGame game, Jogador jogador, Advinha advinha, int fase) {
+    private final int totalPerguntas;
+
+    public GuessingGameScreen(MainGame game, GameFacade facade, Jogador jogador, Advinha advinha, int fase) {
         this.game = game;
+        this.facade = facade;
         this.jogador = jogador;
         this.advinha = advinha;
         this.faseAtual = fase;
+        this.totalPerguntas = advinha.getQuantidadePerguntas(faseAtual);
 
         game.batch = new SpriteBatch();
         stage = new Stage(new ScreenViewport());
@@ -46,7 +51,7 @@ public class GuessingGameScreen implements Screen {
         respostaField = new TextField("", skin);
         feedbackLabel = new Label("", new Label.LabelStyle(font, null));
         responderButton = new TextButton("Responder", skin);
-        acertosLabel = new Label("Acertos: 0/3", new Label.LabelStyle(font, null));
+        acertosLabel = new Label("Acertos: 0/" + totalPerguntas, new Label.LabelStyle(font, null));
         proximaButton = new TextButton("Próxima Pergunta", skin);
         proximaButton.setVisible(false);
 
@@ -61,7 +66,6 @@ public class GuessingGameScreen implements Screen {
         table.add(feedbackLabel).padTop(10).row();
 
         stage.addActor(table);
-
         carregarPergunta();
 
         responderButton.addListener(new ClickListener() {
@@ -87,8 +91,8 @@ public class GuessingGameScreen implements Screen {
     }
 
     private void carregarPergunta() {
-        if (perguntaAtual < 3) {
-            perguntaLabel.setText(advinha.getPergunta(1, perguntaAtual));
+        if (perguntaAtual < totalPerguntas) {
+            perguntaLabel.setText(advinha.getPergunta(faseAtual, perguntaAtual));
             respostaField.setText("");
             feedbackLabel.setText("");
             feedbackLabel.setColor(1, 1, 1, 1);
@@ -100,14 +104,22 @@ public class GuessingGameScreen implements Screen {
 
     private void verificarResposta() {
         String resposta = respostaField.getText().trim().toLowerCase();
-        String respostaCorreta = advinha.getResposta(1, perguntaAtual).toLowerCase();
+        String respostaCorreta = advinha.getResposta(faseAtual, perguntaAtual).toLowerCase();
         respostaRespondida = true;
 
-        if (resposta.equals(respostaCorreta)) {
+        boolean acertou = resposta.equals(respostaCorreta);
+
+
+
+
+
+
+
+        if (acertou) {
             feedbackLabel.setText("Correto! Resposta: " + respostaCorreta);
             feedbackLabel.setColor(0, 1, 0, 1);
             acertosNaFase++;
-            acertosLabel.setText("Acertos: " + acertosNaFase + "/3");
+            acertosLabel.setText("Acertos: " + acertosNaFase + "/" + totalPerguntas);
         } else {
             feedbackLabel.setText("Errado! Resposta correta: " + respostaCorreta);
             feedbackLabel.setColor(1, 0, 0, 1);
@@ -116,32 +128,31 @@ public class GuessingGameScreen implements Screen {
         responderButton.setVisible(false);
         respostaField.setDisabled(true);
 
-        if (perguntaAtual < 2) {
+        if (perguntaAtual < totalPerguntas - 1) {
             proximaButton.setVisible(true);
         } else {
 
-            new Thread(() -> {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+            Timer.schedule(new Timer.Task() {
+                @Override
+                public void run() {
+                    finalizarFase();
                 }
-                Gdx.app.postRunnable(() -> finalizarFase());
-            }).start();
+            }, 2);
         }
     }
 
     private void finalizarFase() {
         if (acertosNaFase >= 2) {
-            game.mostrarFaseCompleta(acertosNaFase, 3, faseAtual + 1);
+            jogador.adicionarAcertos(acertosNaFase);
+            if (faseAtual < 6) {
+                facade.mostrarFaseCompleta(acertosNaFase, totalPerguntas, faseAtual + 1);
+            } else {
+                facade.trocarParaVictory();
+            }
         } else {
-            feedbackLabel.setText("Você perdeu! Acertos: " + acertosNaFase + "/3");
-            feedbackLabel.setColor(1, 0, 0, 1);
-            game.trocarParaGameOver(acertosNaFase, 3);
+            facade.trocarParaGameOver(acertosNaFase, totalPerguntas);
         }
     }
-
-
 
     @Override
     public void show() {}
@@ -159,6 +170,13 @@ public class GuessingGameScreen implements Screen {
         stage.getViewport().update(width, height, true);
     }
 
+
+
+
+
+
+
+
     @Override
     public void pause() {}
 
@@ -174,3 +192,4 @@ public class GuessingGameScreen implements Screen {
         game.batch.dispose();
     }
 }
+

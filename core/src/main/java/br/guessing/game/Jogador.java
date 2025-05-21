@@ -21,10 +21,13 @@ public class Jogador {
         this.acertosTotais += quantidade;
     }
 
-    public void resetarAcertos() {
+    /*public void resetarAcertos() {
         this.acertosTotais = 0;
-    }
+    }*/
+
 }
+
+
 
 
 

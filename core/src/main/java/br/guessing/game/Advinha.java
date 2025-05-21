@@ -5,7 +5,7 @@ import java.util.*;
 
 public class Advinha {
 
-    //associa o número da fase com a lista de perguntas/respostas
+
     private final Map<Integer, List<String[]>> perguntasPorFase;
 
     public Advinha() {
@@ -54,13 +54,12 @@ public class Advinha {
         ));
     }
 
-    //retornar a quantidade de perguntas de uma fase
+
     public int getQuantidadePerguntas(int faseAtual) {
         List<String[]> perguntas = perguntasPorFase.get(faseAtual);
         return perguntas != null ? perguntas.size() : 0;
     }
 
-    // a pergunta de uma fase
     public String getPergunta(int faseAtual, int perguntaAtual) {
         List<String[]> perguntas = perguntasPorFase.get(faseAtual);
         if (perguntas != null && perguntaAtual < perguntas.size()) {
@@ -69,7 +68,6 @@ public class Advinha {
         return "Pergunta não encontrada.";
     }
 
-    // retorna resposta de uma fase
     public String getResposta(int faseAtual, int perguntaAtual) {
         List<String[]> perguntas = perguntasPorFase.get(faseAtual);
         if (perguntas != null && perguntaAtual < perguntas.size()) {
@@ -78,7 +76,7 @@ public class Advinha {
         return "";
     }
 
-    // retornar todas as perguntas de todas as fases
+
     public List<String[]> getTodasPerguntas() {
         List<String[]> todasPerguntas = new ArrayList<>();
         for (List<String[]> perguntas : perguntasPorFase.values()) {
@@ -86,6 +84,10 @@ public class Advinha {
         }
         return todasPerguntas;
     }
+    public int getTotalFases() {
+        return perguntasPorFase.size();
+    }
+
 }
 
 

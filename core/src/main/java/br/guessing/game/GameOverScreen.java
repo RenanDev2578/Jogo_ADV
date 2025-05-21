@@ -48,7 +48,9 @@ public class GameOverScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Jogador novoJogador = new Jogador("Jogador");
-                game.setScreen(new GuessingGameScreen((MainGame) game, novoJogador, new Advinha(), 1));
+                game.setScreen(new GuessingGameScreen((MainGame) game, ((MainGame) game).getFacade(), novoJogador, new Advinha(), 1));
+
+
             }
         });
 
