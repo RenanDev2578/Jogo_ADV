@@ -1,5 +1,5 @@
 <p align="center">
-  <img alt="Guessing Game" src="./assets/img.png" width="25%">
+  <img alt="Guessing Game" src="./assets/img.png" width="40%">
 </p>
 
 <h1 align="center">🎮 Guessing Game 🕹️</h1> 
@@ -44,7 +44,7 @@ Este projeto está sendo desenvolvido por:
 
 - [Alessandra Lemos](https://github.com/SandyLemos?tab=repositories)
 
-## 🎨 Screenshots<div align="center"> <img src="./assets/avatars/grid_avatars.png" width="45%" alt="Avatares"></div>
+## 🎨 Screenshots<div align="center"> <img src="./assets/avatars/grid_avatars.png" width="100%" alt="Avatares"></div>
 Você poderá visualizar o layout do jogo aqui (ainda em desenvolvimento).
 
 ---
