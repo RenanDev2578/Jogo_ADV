@@ -44,9 +44,7 @@ Este projeto está sendo desenvolvido por:
 
 - [Alessandra Lemos](https://github.com/SandyLemos?tab=repositories)
 
-## 🎨 Screenshots
-![Grade de avatares](./assets/avatars/grid_avatars.png)
-
+## 🎨 Screenshots<div align="center"> <img src="./assets/avatars/grid_avatars.png" width="45%" alt="Avatares"></div>
 Você poderá visualizar o layout do jogo aqui (ainda em desenvolvimento).
 
 ---
