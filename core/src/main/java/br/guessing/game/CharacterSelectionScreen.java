@@ -1,13 +1,17 @@
 package br.guessing.game;
 
+import java.util.Arrays;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
@@ -18,22 +22,39 @@ public class CharacterSelectionScreen implements Screen {
     private TextField nameField;
     private Image avatarImage;
     private Texture[] avatarTextures;
+    private String[] avatarNames;
     private int currentAvatarIndex = 0;
 
     public CharacterSelectionScreen(Game game) {
         this.game = game;
         stage = new Stage(new ScreenViewport());
+        skin = new Skin(Gdx.files.internal("uiskin/uiskin.json"));
         Gdx.input.setInputProcessor(stage);
 
-        skin = new Skin(Gdx.files.internal("uiskin/uiskin.json"));
+        // Carregar nomes dos arquivos dos avatares
+        FileHandle file = Gdx.files.internal("avatars/avatar_list.txt");
+        avatarNames = file.readString().split("\\r?\\n");
+        avatarNames = Arrays.stream(avatarNames)
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
+            .toArray(String[]::new);
 
+        if (avatarNames.length == 0) {
+            throw new IllegalStateException("Nenhum avatar foi encontrado em avatar_list.txt.");
+        }
 
-        avatarTextures = new Texture[] {
-            new Texture(Gdx.files.internal("avatars/avatar1.png")),
-            new Texture(Gdx.files.internal("avatars/avatar2.png")),
-            new Texture(Gdx.files.internal("avatars/avatar3.png"))
-        };
+        // Carregar texturas dos avatares
+        avatarTextures = new Texture[avatarNames.length];
+        for (int i = 0; i < avatarNames.length; i++) {
+            try {
+                avatarTextures[i] = new Texture(Gdx.files.internal("avatars/" + avatarNames[i]));
+            } catch (Exception e) {
+                System.err.println("Erro ao carregar avatar: " + avatarNames[i]);
+                avatarTextures[i] = new Texture(Gdx.files.internal("avatars/default.png")); // fallback
+            }
+        }
 
+        // UI
         Table table = new Table();
         table.setFillParent(true);
         stage.addActor(table);
@@ -44,38 +65,39 @@ public class CharacterSelectionScreen implements Screen {
 
         avatarImage = new Image(new TextureRegionDrawable(new TextureRegion(avatarTextures[currentAvatarIndex])));
 
-
         TextButton previousButton = new TextButton("<", skin);
         TextButton nextButton = new TextButton(">", skin);
 
-        previousButton.addListener(event -> {
-            if (event.toString().equals("touchDown")) {
+        previousButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
                 currentAvatarIndex = (currentAvatarIndex - 1 + avatarTextures.length) % avatarTextures.length;
                 updateAvatar();
             }
-            return false;
         });
 
-        nextButton.addListener(event -> {
-            if (event.toString().equals("touchDown")) {
+        nextButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
                 currentAvatarIndex = (currentAvatarIndex + 1) % avatarTextures.length;
                 updateAvatar();
             }
-            return false;
         });
 
         TextButton confirmButton = new TextButton("Confirmar", skin);
-        confirmButton.addListener(event -> {
-            if (event.toString().equals("touchDown")) {
+        confirmButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
                 String nome = nameField.getText();
                 System.out.println("Nome confirmado: " + nome);
-                System.out.println("Avatar selecionado: avatar" + (currentAvatarIndex + 1) + ".png");
+                System.out.println("Avatar selecionado: " + avatarNames[currentAvatarIndex]);
 
-
+                // Proxima tela poderia ser chamada aqui
+                // game.setScreen(new ProximaTela(game, nome, avatarNames[currentAvatarIndex]));
             }
-            return false;
         });
 
+        // Layout
         table.add(label).pad(10);
         table.row();
         table.add(nameField).width(300).pad(10);
@@ -95,19 +117,30 @@ public class CharacterSelectionScreen implements Screen {
         avatarImage.setDrawable(new TextureRegionDrawable(new TextureRegion(avatarTextures[currentAvatarIndex])));
     }
 
-    @Override public void show() {}
-    @Override public void render(float delta) {
+    @Override
+    public void show() {}
+
+    @Override
+    public void render(float delta) {
         Gdx.gl.glClearColor(0.15f, 0.15f, 0.15f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.act(delta);
         stage.draw();
     }
-    @Override public void resize(int width, int height) {
+
+    @Override
+    public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
     }
-    @Override public void pause() {}
-    @Override public void resume() {}
-    @Override public void hide() {}
+
+    @Override
+    public void pause() {}
+
+    @Override
+    public void resume() {}
+
+    @Override
+    public void hide() {}
 
     @Override
     public void dispose() {

@@ -1,0 +1,15 @@
+avatar1.png
+avatar2.png
+avatar3.png
+avatar4.png
+avatar5.png
+avatar6.png
+avatar_cachorro_caramelo.png
+avatar_ET.png
+avatar_fitness.png
+avatar_jonas_baleia.png
+avatar_motoboy.png
+avatar_nazare_tedesco.png
+avatar_pirata.png
+avatar_tio_churrasco.png
+avatar_vo_generica.png
