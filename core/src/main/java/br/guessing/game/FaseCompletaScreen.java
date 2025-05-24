@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -20,6 +21,8 @@ public class FaseCompletaScreen implements Screen {
     private int proximaFase;
 
     private Texture backgroundTexture;
+    private BitmapFont kenneyFont;
+    private Skin skin;
 
     public FaseCompletaScreen(MainGame game, int acertos, int total, int proximaFase) {
         this.game = game;
@@ -30,10 +33,26 @@ public class FaseCompletaScreen implements Screen {
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
-        Skin skin = new Skin(Gdx.files.internal("uiskin.json"));
+
+        kenneyFont = new BitmapFont(Gdx.files.internal("kenney.fnt"));
 
 
-        backgroundTexture = new Texture(Gdx.files.internal("background.png"));
+        skin = new Skin(Gdx.files.internal("uiskin.json"));
+
+
+        Label.LabelStyle labelStyle = new Label.LabelStyle();
+        labelStyle.font = kenneyFont;
+        skin.add("default", labelStyle);
+
+
+        TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
+        textButtonStyle.up = skin.getDrawable("default-round");
+        textButtonStyle.down = skin.getDrawable("default-round-down");
+        textButtonStyle.font = kenneyFont;
+        skin.add("default", textButtonStyle);
+
+
+        backgroundTexture = new Texture(Gdx.files.internal("fase.png"));
         Image background = new Image(backgroundTexture);
         background.setFillParent(true);
         stage.addActor(background);
@@ -41,16 +60,15 @@ public class FaseCompletaScreen implements Screen {
 
         Table table = new Table();
         table.setFillParent(true);
-        table.center();
+        table.top().padTop(500);
+        //table.center();
 
 
-        Label titulo = new Label("🎉 Fase Completa! 🎉", skin);
+        Label titulo = new Label("Fase Completa! ", skin);
         titulo.setFontScale(1.5f);
-
 
         Label resultado = new Label("Você acertou " + acertos + " de " + total + " perguntas.", skin);
         resultado.setFontScale(1.2f);
-
 
         TextButton proximaButton = new TextButton("Próxima Fase", skin);
         proximaButton.addListener(new ClickListener() {
@@ -60,19 +78,9 @@ public class FaseCompletaScreen implements Screen {
             }
         });
 
-
-
-
-
-
-
-
-
-
         table.add(titulo).padBottom(20).row();
         table.add(resultado).padBottom(30).row();
         table.add(proximaButton).width(220).height(60);
-
 
         stage.addActor(table);
     }
@@ -106,8 +114,11 @@ public class FaseCompletaScreen implements Screen {
     public void dispose() {
         stage.dispose();
         backgroundTexture.dispose();
+        kenneyFont.dispose();
+        skin.dispose();
     }
 }
+
 
 
 

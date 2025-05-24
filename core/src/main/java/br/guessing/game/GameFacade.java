@@ -23,7 +23,7 @@ public class GameFacade {
     }
 
     public void trocarParaProximaFase(int acertosDaFase, int totalNaFase) {
-        jogador.adicionarAcertos(acertosDaFase);
+        //jogador.adicionarAcertos(acertosDaFase);
         faseAtual++;
         if (faseAtual <= new Advinha().getTotalFases()) {
             game.setScreen(new GuessingGameScreen(game, this, jogador, new Advinha(), faseAtual));

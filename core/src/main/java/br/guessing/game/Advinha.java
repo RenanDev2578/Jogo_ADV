@@ -1,23 +1,19 @@
 package br.guessing.game;
 
 import java.util.*;
-import java.util.*;
 
 public class Advinha {
-
 
     private final Map<Integer, List<String[]>> perguntasPorFase;
 
     public Advinha() {
         perguntasPorFase = new HashMap<>();
 
-
         perguntasPorFase.put(1, Arrays.asList(
             new String[]{"O que é, o que é? Anda com os pés na cabeça.", "piolho"},
             new String[]{"O que é, o que é? Quanto mais se tira, maior fica.", "buraco"},
             new String[]{"O que é, o que é? Tem dentes mas não morde.", "pente"}
         ));
-
 
         perguntasPorFase.put(2, Arrays.asList(
             new String[]{"O que é, o que é? Entra na água e não se molha.", "sombra"},
@@ -30,7 +26,6 @@ public class Advinha {
             new String[]{"O que é, o que é? Passa diante do sol e não faz sombra.", "vento"},
             new String[]{"O que é, o que é? Não se come, mas é bom para se mastigar.", "goma"}
         ));
-
 
         perguntasPorFase.put(4, Arrays.asList(
             new String[]{"O que é, o que é? Tem pescoço, mas não tem cabeça.", "garrafa"},
@@ -54,7 +49,6 @@ public class Advinha {
         ));
     }
 
-
     public int getQuantidadePerguntas(int faseAtual) {
         List<String[]> perguntas = perguntasPorFase.get(faseAtual);
         return perguntas != null ? perguntas.size() : 0;
@@ -76,6 +70,41 @@ public class Advinha {
         return "";
     }
 
+    public String[] getOpcoes(int faseAtual, int perguntaAtual) {
+        String respostaCorreta = getResposta(faseAtual, perguntaAtual);
+        Set<String> opcoes = new LinkedHashSet<>();
+        opcoes.add(respostaCorreta);
+
+        // Lista com todas as respostas menos a correta
+        List<String> todasRespostas = new ArrayList<>();
+        for (List<String[]> listaPerguntas : perguntasPorFase.values()) {
+            for (String[] pergunta : listaPerguntas) {
+                String resp = pergunta[1];
+                if (!resp.equalsIgnoreCase(respostaCorreta)) {
+                    todasRespostas.add(resp);
+                }
+            }
+        }
+
+        Collections.shuffle(todasRespostas);
+
+        int i = 0;
+        while (opcoes.size() < 5 && i < todasRespostas.size()) {
+            opcoes.add(todasRespostas.get(i));
+            i++;
+        }
+
+        // Preenche com string vazia se faltar opções
+        while (opcoes.size() < 5) {
+            opcoes.add("");
+        }
+
+        // Embaralha as opções
+        List<String> opcoesList = new ArrayList<>(opcoes);
+        Collections.shuffle(opcoesList);
+
+        return opcoesList.toArray(new String[0]);
+    }
 
     public List<String[]> getTodasPerguntas() {
         List<String[]> todasPerguntas = new ArrayList<>();
@@ -84,11 +113,12 @@ public class Advinha {
         }
         return todasPerguntas;
     }
+
     public int getTotalFases() {
         return perguntasPorFase.size();
     }
-
 }
+
 
 
 

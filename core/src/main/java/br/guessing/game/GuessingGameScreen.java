@@ -2,7 +2,9 @@ package br.guessing.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -24,13 +26,12 @@ public class GuessingGameScreen implements Screen {
 
     private final Stage stage;
     private final Label perguntaLabel;
-    private final TextField respostaField;
     private final Label feedbackLabel;
-    private final TextButton responderButton;
     private final Label acertosLabel;
-    private final TextButton proximaButton;
-
+    private final TextButton[] botoesOpcoes = new TextButton[5];
+    private Texture backgroundTexture;
     private final int totalPerguntas;
+    private String[] alternativas;
 
     public GuessingGameScreen(MainGame game, GameFacade facade, Jogador jogador, Advinha advinha, int fase) {
         this.game = game;
@@ -44,101 +45,109 @@ public class GuessingGameScreen implements Screen {
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
-        Skin skin = new Skin(Gdx.files.internal("uiskin.json"));
-        BitmapFont font = new BitmapFont();
+        // Fundo
+        backgroundTexture = new Texture(Gdx.files.internal("telaF1.png"));
+        Image background = new Image(backgroundTexture);
+        background.setFillParent(true);
+        stage.addActor(background);
 
-        perguntaLabel = new Label("", new Label.LabelStyle(font, null));
-        respostaField = new TextField("", skin);
-        feedbackLabel = new Label("", new Label.LabelStyle(font, null));
-        responderButton = new TextButton("Responder", skin);
-        acertosLabel = new Label("Acertos: 0/" + totalPerguntas, new Label.LabelStyle(font, null));
-        proximaButton = new TextButton("Próxima Pergunta", skin);
-        proximaButton.setVisible(false);
+        // Fonte maior e preta
+        BitmapFont font = new BitmapFont();
+        font.getData().setScale(2.0f);  // aumenta o tamanho da fonte
+        Label.LabelStyle labelStyle = new Label.LabelStyle(font, Color.BLACK);
+
+        perguntaLabel = new Label("", labelStyle);
+        feedbackLabel = new Label("", labelStyle);
+        acertosLabel = new Label("Acertos: 0/" + totalPerguntas, labelStyle);
+
+        Skin skin = new Skin(Gdx.files.internal("uiskin.json"));
+
+        // Style dos botões com fonte preta e maior
+        TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
+        buttonStyle.font = font;
+        buttonStyle.fontColor = Color.BLACK;
+        buttonStyle.overFontColor = Color.DARK_GRAY;
+        buttonStyle.downFontColor = Color.DARK_GRAY;
+        buttonStyle.checkedFontColor = Color.BLACK;
+        buttonStyle.disabledFontColor = Color.GRAY;
+        buttonStyle.up = skin.getDrawable("default-round");
+        buttonStyle.down = skin.getDrawable("default-round-down");
 
         Table table = new Table();
         table.setFillParent(true);
-        table.top().padTop(50);
+        table.center().padTop(50);
+        stage.addActor(table);
+
         table.add(acertosLabel).padBottom(20).row();
         table.add(perguntaLabel).padBottom(20).row();
-        table.add(respostaField).width(300).padBottom(10).row();
-        table.add(responderButton).width(200).padBottom(10).row();
-        table.add(proximaButton).width(200).padBottom(10).row();
+
+        // Cria os 5 botões de opção centralizados
+        for (int i = 0; i < 5; i++) {
+            final int indice = i;
+            botoesOpcoes[i] = new TextButton("Opção " + (char) ('A' + i), buttonStyle);
+            botoesOpcoes[i].addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    if (!respostaRespondida) {
+                        verificarResposta(indice);
+                    }
+                }
+            });
+            table.add(botoesOpcoes[i]).width(300).height(60).pad(10).center().row();
+        }
+
         table.add(feedbackLabel).padTop(10).row();
 
-        stage.addActor(table);
         carregarPergunta();
-
-        responderButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                if (!respostaRespondida) {
-                    verificarResposta();
-                }
-            }
-        });
-
-        proximaButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                perguntaAtual++;
-                respostaRespondida = false;
-                carregarPergunta();
-                proximaButton.setVisible(false);
-                responderButton.setVisible(true);
-                respostaField.setDisabled(false);
-            }
-        });
     }
 
     private void carregarPergunta() {
         if (perguntaAtual < totalPerguntas) {
             perguntaLabel.setText(advinha.getPergunta(faseAtual, perguntaAtual));
-            respostaField.setText("");
             feedbackLabel.setText("");
             feedbackLabel.setColor(1, 1, 1, 1);
-            respostaField.setDisabled(false);
+            respostaRespondida = false;
+
+            alternativas = advinha.getOpcoes(faseAtual, perguntaAtual);
+
+            for (int i = 0; i < botoesOpcoes.length; i++) {
+                botoesOpcoes[i].setText((char) ('A' + i) + ": " + alternativas[i]);
+                botoesOpcoes[i].setDisabled(false);
+                botoesOpcoes[i].setVisible(true);
+            }
         } else {
             finalizarFase();
         }
     }
 
-    private void verificarResposta() {
-        String resposta = respostaField.getText().trim().toLowerCase();
-        String respostaCorreta = advinha.getResposta(faseAtual, perguntaAtual).toLowerCase();
+    private void verificarResposta(int indiceEscolhido) {
         respostaRespondida = true;
+        String respostaCerta = advinha.getResposta(faseAtual, perguntaAtual).toLowerCase();
+        String respostaJogador = alternativas[indiceEscolhido].toLowerCase();
 
-        boolean acertou = resposta.equals(respostaCorreta);
-
-
-
-
-
-
+        boolean acertou = respostaJogador.equals(respostaCerta);
 
         if (acertou) {
-            feedbackLabel.setText("Correto! Resposta: " + respostaCorreta);
+            feedbackLabel.setText("Correto! Resposta: " + respostaCerta);
             feedbackLabel.setColor(0, 1, 0, 1);
             acertosNaFase++;
             acertosLabel.setText("Acertos: " + acertosNaFase + "/" + totalPerguntas);
         } else {
-            feedbackLabel.setText("Errado! Resposta correta: " + respostaCorreta);
+            feedbackLabel.setText("Errado! Resposta correta: " + respostaCerta);
             feedbackLabel.setColor(1, 0, 0, 1);
         }
 
-        responderButton.setVisible(false);
-        respostaField.setDisabled(true);
-
-        if (perguntaAtual < totalPerguntas - 1) {
-            proximaButton.setVisible(true);
-        } else {
-
-            Timer.schedule(new Timer.Task() {
-                @Override
-                public void run() {
-                    finalizarFase();
-                }
-            }, 2);
+        for (TextButton btn : botoesOpcoes) {
+            btn.setDisabled(true);
         }
+
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                perguntaAtual++;
+                carregarPergunta();
+            }
+        }, 2);
     }
 
     private void finalizarFase() {
@@ -154,42 +163,24 @@ public class GuessingGameScreen implements Screen {
         }
     }
 
-    @Override
-    public void show() {}
-
-    @Override
-    public void render(float delta) {
+    @Override public void show() {}
+    @Override public void render(float delta) {
         Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.act(delta);
         stage.draw();
     }
-
-    @Override
-    public void resize(int width, int height) {
+    @Override public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
     }
-
-
-
-
-
-
-
-
-    @Override
-    public void pause() {}
-
-    @Override
-    public void resume() {}
-
-    @Override
-    public void hide() {}
-
-    @Override
-    public void dispose() {
+    @Override public void pause() {}
+    @Override public void resume() {}
+    @Override public void hide() {}
+    @Override public void dispose() {
         stage.dispose();
         game.batch.dispose();
     }
 }
+
+
 
