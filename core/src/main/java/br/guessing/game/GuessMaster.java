@@ -3,7 +3,7 @@ package br.guessing.game;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.Batch;
 
-public class MainGame extends Game {
+public class GuessMaster extends Game {
     public Batch batch;
     private GameFacade facade;
 
@@ -11,6 +11,12 @@ public class MainGame extends Game {
     public void create() {
         facade = new GameFacade(this);
         facade.iniciarJogo();
+    }
+
+    @Override
+    public void dispose() {
+        if (batch != null) batch.dispose();
+        super.dispose();
     }
 
     public GameFacade getFacade() {
@@ -23,6 +29,8 @@ public class MainGame extends Game {
 
     }
 }
+
+
 
 
 

@@ -2,7 +2,7 @@ package br.guessing.game.lwjgl3;
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import br.guessing.game.MainGame;
+import br.guessing.game.GuessMaster;
 
 public class Lwjgl3Launcher {
     public static void main(String[] args) {
@@ -11,7 +11,7 @@ public class Lwjgl3Launcher {
     }
 
     private static Lwjgl3Application createApplication() {
-        return new Lwjgl3Application(new MainGame(), getDefaultConfiguration());
+        return new Lwjgl3Application(new GuessMaster(), getDefaultConfiguration());
     }
 
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {

@@ -6,10 +6,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
@@ -17,14 +14,16 @@ public class GameOverScreen implements Screen {
     private final Game game;
     private final int acertos;
     private final int total;
+    private final Jogador jogador;
     private Stage stage;
     private Skin skin;
     private boolean isFinal;
 
-    public GameOverScreen(Game game, int acertos, int total) {
+    public GameOverScreen(Game game, int acertos, int total, Jogador jogador) {
         this.game = game;
         this.acertos = acertos;
         this.total = total;
+        this.jogador = jogador;
         this.isFinal = (total == 3);
     }
 
@@ -43,14 +42,16 @@ public class GameOverScreen implements Screen {
             "Fim da fase! Você acertou " + acertos + " de " + total;
 
         Label resultado = new Label(mensagem, skin);
+        Label nomeJogador = new Label("Jogador: " + jogador.getNome(), skin);
+
+        Image avatarImage = new Image(jogador.getAvatarTexture());
+        avatarImage.setSize(100, 100); // Tamanho do avatar na tela
+
         TextButton jogarNovamente = new TextButton("Jogar Novamente", skin);
         jogarNovamente.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Jogador novoJogador = new Jogador("Jogador");
-                game.setScreen(new GuessingGameScreen((MainGame) game, ((MainGame) game).getFacade(), novoJogador, new Advinha(), 1));
-
-
+                game.setScreen(new GuessingGameScreen((GuessMaster) game, ((GuessMaster) game).getFacade(), jogador, new Advinha(), 1));
             }
         });
 
@@ -63,6 +64,8 @@ public class GameOverScreen implements Screen {
         });
 
         table.add(resultado).pad(10).row();
+        table.add(nomeJogador).pad(10).row();
+        table.add(avatarImage).size(100, 100).pad(10).row();
         table.add(jogarNovamente).pad(10).row();
         table.add(sair).pad(10);
     }

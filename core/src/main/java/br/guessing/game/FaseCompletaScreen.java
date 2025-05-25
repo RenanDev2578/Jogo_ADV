@@ -14,7 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 
 public class FaseCompletaScreen implements Screen {
 
-    private MainGame game;
+    private GuessMaster game;
     private Stage stage;
     private int acertos;
     private int total;
@@ -24,7 +24,7 @@ public class FaseCompletaScreen implements Screen {
     private BitmapFont kenneyFont;
     private Skin skin;
 
-    public FaseCompletaScreen(MainGame game, int acertos, int total, int proximaFase) {
+    public FaseCompletaScreen(GuessMaster game, int acertos, int total, int proximaFase) {
         this.game = game;
         this.acertos = acertos;
         this.total = total;

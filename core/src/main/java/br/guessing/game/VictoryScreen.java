@@ -11,12 +11,12 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 public class VictoryScreen implements Screen {
 
-    private MainGame game;
+    private GuessMaster game;
     private int acertosTotais;
     private Stage stage;
     private Skin skin;
 
-    public VictoryScreen(MainGame game, int acertosTotais, int dummy) {
+    public VictoryScreen(GuessMaster game, int acertosTotais, int dummy) {
         this.game = game;
         this.acertosTotais = acertosTotais;
     }

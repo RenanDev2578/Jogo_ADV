@@ -1,16 +1,24 @@
 package br.guessing.game;
 
-public class Jogador {
-    private String nome;
-    private int acertosTotais;
+import com.badlogic.gdx.graphics.Texture;
 
-    public Jogador(String nome) {
+public class Jogador {
+    private final String nome;
+    private int acertosTotais;
+    private final Texture avatarTexture;
+
+    public Jogador(String nome, String avatarCaminho) {
         this.nome = nome;
+        this.avatarTexture = new Texture(avatarCaminho);
         this.acertosTotais = 0;
     }
 
     public String getNome() {
         return nome;
+    }
+
+    public Texture getAvatarTexture() {
+        return avatarTexture;
     }
 
     public int getAcertosTotais() {
@@ -21,11 +29,20 @@ public class Jogador {
         this.acertosTotais += quantidade;
     }
 
-    /*public void resetarAcertos() {
-        this.acertosTotais = 0;
-    }*/
+    public void dispose() {
+        avatarTexture.dispose();
+    }
 
+    public String getAvatar() {
+
+        return "";
+    }
 }
+
+
+
+
+
 
 
 

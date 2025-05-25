@@ -1,6 +1,5 @@
 package br.guessing.game;
 
-import java.util.Arrays;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -15,26 +14,37 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
-public class CharacterSelectionScreen implements Screen {
-    private Game game;
-    private Stage stage;
-    private Skin skin;
-    private TextField nameField;
-    private Image avatarImage;
-    private Texture[] avatarTextures;
-    private String[] avatarNames;
-    private int currentAvatarIndex = 0;
+import java.util.Arrays;
 
-    public CharacterSelectionScreen(Game game) {
+public class CharacterSelectionScreen implements Screen {
+    private final Game game;
+    private final GameFacade gameFacade;
+    private final Stage stage;
+    private final Skin skin;
+    private final TextField nameField;
+    private final Image avatarImage;
+    private final Image avatarImageTop;
+    private final Texture[] avatarTextures;
+    private final String[] avatarNames;
+    private int currentAvatarIndex = 0;
+    private final Label messageLabel;
+
+    public CharacterSelectionScreen(Game game, GameFacade gameFacade) {
         this.game = game;
-        stage = new Stage(new ScreenViewport());
-        skin = new Skin(Gdx.files.internal("uiskin/uiskin.json"));
+        this.gameFacade = gameFacade;
+        this.stage = new Stage(new ScreenViewport());
+        this.skin = new Skin(Gdx.files.internal("uiskin.json"));
         Gdx.input.setInputProcessor(stage);
+
+        // Fundo
+        Texture backgroundTexture = new Texture(Gdx.files.internal("telaAV.png"));
+        Image background = new Image(backgroundTexture);
+        background.setFillParent(true);
+        stage.addActor(background);
 
         // Carregar nomes dos arquivos dos avatares
         FileHandle file = Gdx.files.internal("avatars/avatar_list.txt");
-        avatarNames = file.readString().split("\\r?\\n");
-        avatarNames = Arrays.stream(avatarNames)
+        avatarNames = Arrays.stream(file.readString().split("\\r?\\n"))
             .map(String::trim)
             .filter(s -> !s.isEmpty())
             .toArray(String[]::new);
@@ -46,15 +56,9 @@ public class CharacterSelectionScreen implements Screen {
         // Carregar texturas dos avatares
         avatarTextures = new Texture[avatarNames.length];
         for (int i = 0; i < avatarNames.length; i++) {
-            try {
-                avatarTextures[i] = new Texture(Gdx.files.internal("avatars/" + avatarNames[i]));
-            } catch (Exception e) {
-                System.err.println("Erro ao carregar avatar: " + avatarNames[i]);
-                avatarTextures[i] = new Texture(Gdx.files.internal("avatars/default.png")); // fallback
-            }
+            avatarTextures[i] = new Texture(Gdx.files.internal("avatars/" + avatarNames[i]));
         }
 
-        // UI
         Table table = new Table();
         table.setFillParent(true);
         stage.addActor(table);
@@ -64,9 +68,13 @@ public class CharacterSelectionScreen implements Screen {
         nameField.setMessageText("Seu nome aqui");
 
         avatarImage = new Image(new TextureRegionDrawable(new TextureRegion(avatarTextures[currentAvatarIndex])));
+        avatarImageTop = new Image(new TextureRegionDrawable(new TextureRegion(avatarTextures[currentAvatarIndex])));
+        avatarImageTop.setSize(64, 64);
+        stage.addActor(avatarImageTop);
 
         TextButton previousButton = new TextButton("<", skin);
         TextButton nextButton = new TextButton(">", skin);
+        TextButton confirmButton = new TextButton("Confirmar", skin);
 
         previousButton.addListener(new ClickListener() {
             @Override
@@ -84,18 +92,25 @@ public class CharacterSelectionScreen implements Screen {
             }
         });
 
-        TextButton confirmButton = new TextButton("Confirmar", skin);
         confirmButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                String nome = nameField.getText();
-                System.out.println("Nome confirmado: " + nome);
-                System.out.println("Avatar selecionado: " + avatarNames[currentAvatarIndex]);
+                String nome = nameField.getText().trim();
+                if (nome.isEmpty()) {
+                    showMessage("Por favor, digite um nome.");
+                    return;
+                }
 
-                // Proxima tela poderia ser chamada aqui
-                // game.setScreen(new ProximaTela(game, nome, avatarNames[currentAvatarIndex]));
+                String avatarSelecionado = "avatars/" + avatarNames[currentAvatarIndex];
+                Jogador jogador = new Jogador(nome, avatarSelecionado);
+
+                gameFacade.iniciarFaseComJogador(jogador);
             }
         });
+
+        messageLabel = new Label("", skin);
+        messageLabel.setColor(1, 0, 0, 1);
+        messageLabel.setWrap(true);
 
         // Layout
         table.add(label).pad(10);
@@ -111,10 +126,18 @@ public class CharacterSelectionScreen implements Screen {
         table.add(avatarRow).pad(20);
         table.row();
         table.add(confirmButton).pad(10);
+        table.row();
+        table.add(messageLabel).width(300).pad(10);
     }
 
     private void updateAvatar() {
-        avatarImage.setDrawable(new TextureRegionDrawable(new TextureRegion(avatarTextures[currentAvatarIndex])));
+        TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(avatarTextures[currentAvatarIndex]));
+        avatarImage.setDrawable(drawable);
+        avatarImageTop.setDrawable(drawable);
+    }
+
+    private void showMessage(String message) {
+        messageLabel.setText(message);
     }
 
     @Override
@@ -131,6 +154,10 @@ public class CharacterSelectionScreen implements Screen {
     @Override
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
+        avatarImageTop.setPosition(
+            stage.getViewport().getWorldWidth() - avatarImageTop.getWidth() - 10,
+            stage.getViewport().getWorldHeight() - avatarImageTop.getHeight() - 10
+        );
     }
 
     @Override
@@ -151,3 +178,4 @@ public class CharacterSelectionScreen implements Screen {
         skin.dispose();
     }
 }
+

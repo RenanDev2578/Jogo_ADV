@@ -7,16 +7,18 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 public class GuessingGameScreen implements Screen {
     private final GameFacade facade;
-    private final MainGame game;
+    private final GuessMaster game;
     private final Jogador jogador;
     private final Advinha advinha;
     private final int faseAtual;
@@ -33,7 +35,10 @@ public class GuessingGameScreen implements Screen {
     private final int totalPerguntas;
     private String[] alternativas;
 
-    public GuessingGameScreen(MainGame game, GameFacade facade, Jogador jogador, Advinha advinha, int fase) {
+    private Image avatarImage;
+    private Texture avatarTexture;
+
+    public GuessingGameScreen(GuessMaster game, GameFacade facade, Jogador jogador, Advinha advinha, int fase) {
         this.game = game;
         this.facade = facade;
         this.jogador = jogador;
@@ -51,9 +56,8 @@ public class GuessingGameScreen implements Screen {
         background.setFillParent(true);
         stage.addActor(background);
 
-        // Fonte maior e preta
         BitmapFont font = new BitmapFont();
-        font.getData().setScale(2.0f);  // aumenta o tamanho da fonte
+        font.getData().setScale(2.0f);
         Label.LabelStyle labelStyle = new Label.LabelStyle(font, Color.BLACK);
 
         perguntaLabel = new Label("", labelStyle);
@@ -62,7 +66,6 @@ public class GuessingGameScreen implements Screen {
 
         Skin skin = new Skin(Gdx.files.internal("uiskin.json"));
 
-        // Style dos botões com fonte preta e maior
         TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
         buttonStyle.font = font;
         buttonStyle.fontColor = Color.BLACK;
@@ -81,7 +84,6 @@ public class GuessingGameScreen implements Screen {
         table.add(acertosLabel).padBottom(20).row();
         table.add(perguntaLabel).padBottom(20).row();
 
-        // Cria os 5 botões de opção centralizados
         for (int i = 0; i < 5; i++) {
             final int indice = i;
             botoesOpcoes[i] = new TextButton("Opção " + (char) ('A' + i), buttonStyle);
@@ -97,6 +99,18 @@ public class GuessingGameScreen implements Screen {
         }
 
         table.add(feedbackLabel).padTop(10).row();
+
+        // Carregar avatar do jogador
+        try {
+            avatarTexture = new Texture(Gdx.files.internal("avatars/" + jogador.getAvatar()));
+        } catch (Exception e) {
+            avatarTexture = new Texture(Gdx.files.internal("avatars/default.png"));
+        }
+        avatarImage = new Image(new TextureRegionDrawable(new TextureRegion(avatarTexture)));
+        avatarImage.setSize(100, 100);
+        avatarImage.setPosition(stage.getViewport().getWorldWidth() - avatarImage.getWidth() - 10,
+            stage.getViewport().getWorldHeight() - avatarImage.getHeight() - 10);
+        stage.addActor(avatarImage);
 
         carregarPergunta();
     }
@@ -172,6 +186,10 @@ public class GuessingGameScreen implements Screen {
     }
     @Override public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
+
+        // Atualiza posição do avatar no canto superior direito após o resize
+        avatarImage.setPosition(stage.getViewport().getWorldWidth() - avatarImage.getWidth() - 10,
+            stage.getViewport().getWorldHeight() - avatarImage.getHeight() - 10);
     }
     @Override public void pause() {}
     @Override public void resume() {}
@@ -179,8 +197,12 @@ public class GuessingGameScreen implements Screen {
     @Override public void dispose() {
         stage.dispose();
         game.batch.dispose();
+        backgroundTexture.dispose();
+        avatarTexture.dispose();
     }
 }
+
+
 
 
 
