@@ -1,5 +1,6 @@
 package br.guessing.game;
 
+import br.guessing.game.handlers.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
@@ -136,32 +137,20 @@ public class GuessingGameScreen implements Screen {
 
     private void verificarResposta(int indiceEscolhido) {
         respostaRespondida = true;
-        String respostaCerta = advinha.getResposta(faseAtual, perguntaAtual).toLowerCase();
-        String respostaJogador = alternativas[indiceEscolhido].toLowerCase();
 
-        boolean acertou = respostaJogador.equals(respostaCerta);
+        AnswerContext context = new AnswerContext(this, faseAtual, perguntaAtual, alternativas, indiceEscolhido);
 
-        if (acertou) {
-            feedbackLabel.setText("Correto! Resposta: " + respostaCerta);
-            feedbackLabel.setColor(0, 1, 0, 1);
-            acertosNaFase++;
-            acertosLabel.setText("Acertos: " + acertosNaFase + "/" + totalPerguntas);
-        } else {
-            feedbackLabel.setText("Errado! Resposta correta: " + respostaCerta);
-            feedbackLabel.setColor(1, 0, 0, 1);
-        }
+        AnswerHandler chain = new VerifyAnswerHandler();
+        chain
+            .setProximo(new UpdatePontuationHandler())
+            .setProximo(new ShowFeedbackHandler())
+            .setProximo(new AvancarPerguntaHandler());
+
+        chain.handle(context);
 
         for (TextButton btn : botoesOpcoes) {
             btn.setDisabled(true);
         }
-
-        Timer.schedule(new Timer.Task() {
-            @Override
-            public void run() {
-                perguntaAtual++;
-                carregarPergunta();
-            }
-        }, 2);
     }
 
     private void finalizarFase() {
@@ -200,6 +189,30 @@ public class GuessingGameScreen implements Screen {
         backgroundTexture.dispose();
         avatarTexture.dispose();
     }
+
+
+    public void incrementarAcertos() {
+        acertosNaFase++;
+    }
+
+    public void atualizarAcertosLabel() {
+        acertosLabel.setText("Acertos: " + acertosNaFase + "/" + totalPerguntas);
+    }
+
+    public void mostrarFeedback(String mensagem, float r, float g, float b) {
+        feedbackLabel.setText(mensagem);
+        feedbackLabel.setColor(r, g, b, 1);
+    }
+
+    public void carregarProximaPergunta() {
+        perguntaAtual++;
+        carregarPergunta();
+    }
+
+    public Advinha getAdvinha() {
+        return advinha;
+    }
+
 }
 
 

@@ -117,6 +117,16 @@ public class Advinha {
     public int getTotalFases() {
         return perguntasPorFase.size();
     }
+
+    private Boolean ultimoResultado;
+
+    public Boolean getUltimoResultado() {
+        return ultimoResultado;
+    }
+
+    public void setUltimoResultado(Boolean resultado) {
+        this.ultimoResultado = resultado;
+    }
 }
 
 
