@@ -24,8 +24,8 @@ public class GameOverScreen implements Screen {
         this.acertos = acertos;
         this.total = total;
         this.jogador = jogador;
-        this.isFinal = (total == 3);
-    }
+        this.isFinal = (total == 18);
+   }
 
     @Override
     public void show() {

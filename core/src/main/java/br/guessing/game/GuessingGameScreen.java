@@ -1,12 +1,12 @@
 package br.guessing.game;
 
+import br.guessing.game.handlers.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -27,16 +27,24 @@ public class GuessingGameScreen implements Screen {
     private boolean respostaRespondida = false;
 
     private final Stage stage;
-    private final Label perguntaLabel;
-    private final Label feedbackLabel;
-    private final Label acertosLabel;
+    private Label perguntaLabel;
+    private Label feedbackLabel;
+    private Label acertosLabel;
+    private Label timerLabel;
     private final TextButton[] botoesOpcoes = new TextButton[5];
+
+    private float tempoRestante = 30f;
+    private boolean tempoEsgotado = false;
+
     private Texture backgroundTexture;
     private final int totalPerguntas;
     private String[] alternativas;
 
-    private Image avatarImage;
     private Texture avatarTexture;
+    private Image avatarImage;
+
+    private Skin skin;
+    private Table table;
 
     public GuessingGameScreen(GuessMaster game, GameFacade facade, Jogador jogador, Advinha advinha, int fase) {
         this.game = game;
@@ -46,11 +54,9 @@ public class GuessingGameScreen implements Screen {
         this.faseAtual = fase;
         this.totalPerguntas = advinha.getQuantidadePerguntas(faseAtual);
 
-        game.batch = new SpriteBatch();
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
-        // Fundo
         backgroundTexture = new Texture(Gdx.files.internal("telaF1.png"));
         Image background = new Image(backgroundTexture);
         background.setFillParent(true);
@@ -64,7 +70,7 @@ public class GuessingGameScreen implements Screen {
         feedbackLabel = new Label("", labelStyle);
         acertosLabel = new Label("Acertos: 0/" + totalPerguntas, labelStyle);
 
-        Skin skin = new Skin(Gdx.files.internal("uiskin.json"));
+        skin = new Skin(Gdx.files.internal("uiskin.json"));
 
         TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
         buttonStyle.font = font;
@@ -76,7 +82,7 @@ public class GuessingGameScreen implements Screen {
         buttonStyle.up = skin.getDrawable("default-round");
         buttonStyle.down = skin.getDrawable("default-round-down");
 
-        Table table = new Table();
+        table = new Table();
         table.setFillParent(true);
         table.center().padTop(50);
         stage.addActor(table);
@@ -100,7 +106,6 @@ public class GuessingGameScreen implements Screen {
 
         table.add(feedbackLabel).padTop(10).row();
 
-        // Carregar avatar do jogador
         try {
             avatarTexture = new Texture(Gdx.files.internal("avatars/" + jogador.getAvatar()));
         } catch (Exception e) {
@@ -108,8 +113,7 @@ public class GuessingGameScreen implements Screen {
         }
         avatarImage = new Image(new TextureRegionDrawable(new TextureRegion(avatarTexture)));
         avatarImage.setSize(100, 100);
-        avatarImage.setPosition(stage.getViewport().getWorldWidth() - avatarImage.getWidth() - 10,
-            stage.getViewport().getWorldHeight() - avatarImage.getHeight() - 10);
+        atualizarPosicaoAvatar();
         stage.addActor(avatarImage);
 
         carregarPergunta();
@@ -121,6 +125,7 @@ public class GuessingGameScreen implements Screen {
             feedbackLabel.setText("");
             feedbackLabel.setColor(1, 1, 1, 1);
             respostaRespondida = false;
+            tempoEsgotado = false;
 
             alternativas = advinha.getOpcoes(faseAtual, perguntaAtual);
 
@@ -132,36 +137,26 @@ public class GuessingGameScreen implements Screen {
         } else {
             finalizarFase();
         }
+
+        tempoRestante = 30f;
     }
 
     private void verificarResposta(int indiceEscolhido) {
         respostaRespondida = true;
-        String respostaCerta = advinha.getResposta(faseAtual, perguntaAtual).toLowerCase();
-        String respostaJogador = alternativas[indiceEscolhido].toLowerCase();
 
-        boolean acertou = respostaJogador.equals(respostaCerta);
+        AnswerContext context = new AnswerContext(this, faseAtual, perguntaAtual, alternativas, indiceEscolhido);
 
-        if (acertou) {
-            feedbackLabel.setText("Correto! Resposta: " + respostaCerta);
-            feedbackLabel.setColor(0, 1, 0, 1);
-            acertosNaFase++;
-            acertosLabel.setText("Acertos: " + acertosNaFase + "/" + totalPerguntas);
-        } else {
-            feedbackLabel.setText("Errado! Resposta correta: " + respostaCerta);
-            feedbackLabel.setColor(1, 0, 0, 1);
-        }
+        AnswerHandler chain = new VerifyAnswerHandler();
+        chain
+            .setProximo(new UpdatePontuationHandler())
+            .setProximo(new ShowFeedbackHandler())
+            .setProximo(new AvancarPerguntaHandler());
+
+        chain.handle(context);
 
         for (TextButton btn : botoesOpcoes) {
             btn.setDisabled(true);
         }
-
-        Timer.schedule(new Timer.Task() {
-            @Override
-            public void run() {
-                perguntaAtual++;
-                carregarPergunta();
-            }
-        }, 2);
     }
 
     private void finalizarFase() {
@@ -177,32 +172,106 @@ public class GuessingGameScreen implements Screen {
         }
     }
 
-    @Override public void show() {}
-    @Override public void render(float delta) {
+    private void atualizarPosicaoAvatar() {
+        avatarImage.setPosition(
+            stage.getViewport().getWorldWidth() - avatarImage.getWidth() - 10,
+            stage.getViewport().getWorldHeight() - avatarImage.getHeight() - 10
+        );
+    }
+
+    private void tratarTempoEsgotado() {
+        if (respostaRespondida) {
+            return;
+        }
+
+        respostaRespondida = true;
+        tempoEsgotado = true;
+        mostrarFeedback("Tempo esgotado!", 1, 0, 0);
+
+        for (TextButton btn : botoesOpcoes) {
+            btn.setDisabled(true);
+        }
+
+        AnswerContext context = new AnswerContext(this, faseAtual, perguntaAtual, alternativas, -1);
+        AnswerHandler chain = new VerifyAnswerHandler();
+        chain
+            .setProximo(new UpdatePontuationHandler())
+            .setProximo(new ShowFeedbackHandler());
+
+        chain.handle(context);
+
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                carregarProximaPergunta();
+            }
+        }, 2);
+    }
+
+    @Override
+    public void show() {
+        timerLabel = new Label("Tempo: " + (int) tempoRestante + "s", skin);
+        table.add(timerLabel).padBottom(20).row();
+    }
+
+    @Override
+    public void render(float delta) {
+        if (!respostaRespondida && !tempoEsgotado) {
+            tempoRestante -= delta;
+            if (tempoRestante <= 0) {
+                tempoRestante = 0;
+                tratarTempoEsgotado();
+            }
+            timerLabel.setText("Tempo: " + (int) tempoRestante + "s");
+        }
+
         Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.act(delta);
         stage.draw();
     }
-    @Override public void resize(int width, int height) {
-        stage.getViewport().update(width, height, true);
 
-        // Atualiza posição do avatar no canto superior direito após o resize
-        avatarImage.setPosition(stage.getViewport().getWorldWidth() - avatarImage.getWidth() - 10,
-            stage.getViewport().getWorldHeight() - avatarImage.getHeight() - 10);
+    @Override
+    public void resize(int width, int height) {
+        stage.getViewport().update(width, height, true);
+        atualizarPosicaoAvatar();
     }
-    @Override public void pause() {}
-    @Override public void resume() {}
-    @Override public void hide() {}
-    @Override public void dispose() {
+
+    @Override
+    public void pause() {}
+    @Override
+    public void resume() {}
+    @Override
+    public void hide() {}
+
+    @Override
+    public void dispose() {
         stage.dispose();
-        game.batch.dispose();
         backgroundTexture.dispose();
         avatarTexture.dispose();
+        skin.dispose();
+    }
+
+    public void incrementarAcertos() {
+        acertosNaFase++;
+    }
+
+    public void atualizarAcertosLabel() {
+        acertosLabel.setText("Acertos: " + acertosNaFase + "/" + totalPerguntas);
+    }
+
+    public void mostrarFeedback(String mensagem, float r, float g, float b) {
+        feedbackLabel.setText(mensagem);
+        feedbackLabel.setColor(r, g, b, 1);
+    }
+
+    public void carregarProximaPergunta() {
+        perguntaAtual++;
+        carregarPergunta();
+    }
+
+    public Advinha getAdvinha() {
+        return advinha;
     }
 }
-
-
-
-
 

@@ -6,10 +6,12 @@ public class Jogador {
     private final String nome;
     private int acertosTotais;
     private final Texture avatarTexture;
+    private final String avatarFileName; // Guarda só o nome do arquivo
 
-    public Jogador(String nome, String avatarCaminho) {
+    public Jogador(String nome, String avatarFileName) {
         this.nome = nome;
-        this.avatarTexture = new Texture(avatarCaminho);
+        this.avatarFileName = avatarFileName;
+        this.avatarTexture = new Texture("avatars/" + avatarFileName);
         this.acertosTotais = 0;
     }
 
@@ -34,10 +36,20 @@ public class Jogador {
     }
 
     public String getAvatar() {
+        return avatarFileName;
+    }
 
-        return "";
+
+    public String getAvatarPath() {
+        return "avatars/" + avatarFileName;
     }
 }
+
+
+
+
+
+
 
 
 

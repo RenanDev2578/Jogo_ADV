@@ -2,7 +2,7 @@ package br.guessing.game;
 
 public class GameFacade {
     private GuessMaster game;
-    private Jogador jogadorAtual;  // só guarda o jogador real com avatar
+    private Jogador jogadorAtual;
     private int faseAtual = 1;
 
     public GameFacade(GuessMaster game) {
@@ -20,22 +20,23 @@ public class GameFacade {
     }
 
     public void mostrarFaseCompleta(int acertos, int total, int proximaFase) {
-        // Se precisar do jogador, passe também aqui
-        game.setScreen(new FaseCompletaScreen(game, acertos, total, proximaFase));
+
+        game.setScreen(new FaseCompletaScreen(game, this, acertos, total, proximaFase));
     }
 
     public void trocarParaProximaFase(int acertosDaFase, int totalNaFase) {
         faseAtual++;
+
         if (faseAtual <= new Advinha().getTotalFases()) {
             game.setScreen(new GuessingGameScreen(game, this, jogadorAtual, new Advinha(), faseAtual));
         } else {
-            game.setScreen(new VictoryScreen(game, jogadorAtual.getAcertosTotais(), 18));
+
+            game.setScreen(new VictoryScreen(game, jogadorAtual, jogadorAtual.getAcertosTotais()));
         }
     }
 
     public void trocarParaGameOver(int acertosDaFase, int totalNaFase) {
-        game.setScreen(new GameOverScreen(game, acertosDaFase, totalNaFase,jogadorAtual));
-
+        game.setScreen(new GameOverScreen(game, acertosDaFase, totalNaFase, jogadorAtual));
     }
 
     public Jogador getJogador() {
@@ -43,8 +44,11 @@ public class GameFacade {
     }
 
     public void trocarParaVictory() {
-        game.setScreen(new VictoryScreen(game, jogadorAtual.getAcertosTotais(), 0));
+        game.setScreen(new VictoryScreen(game, jogadorAtual, jogadorAtual.getAcertosTotais()));
     }
 }
+
+
+
 
 

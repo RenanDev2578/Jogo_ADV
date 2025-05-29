@@ -36,13 +36,12 @@ public class CharacterSelectionScreen implements Screen {
         this.skin = new Skin(Gdx.files.internal("uiskin.json"));
         Gdx.input.setInputProcessor(stage);
 
-        // Fundo
+
         Texture backgroundTexture = new Texture(Gdx.files.internal("telaAV.png"));
         Image background = new Image(backgroundTexture);
         background.setFillParent(true);
         stage.addActor(background);
 
-        // Carregar nomes dos arquivos dos avatares
         FileHandle file = Gdx.files.internal("avatars/avatar_list.txt");
         avatarNames = Arrays.stream(file.readString().split("\\r?\\n"))
             .map(String::trim)
@@ -53,7 +52,7 @@ public class CharacterSelectionScreen implements Screen {
             throw new IllegalStateException("Nenhum avatar foi encontrado em avatar_list.txt.");
         }
 
-        // Carregar texturas dos avatares
+
         avatarTextures = new Texture[avatarNames.length];
         for (int i = 0; i < avatarNames.length; i++) {
             avatarTextures[i] = new Texture(Gdx.files.internal("avatars/" + avatarNames[i]));
@@ -100,10 +99,8 @@ public class CharacterSelectionScreen implements Screen {
                     showMessage("Por favor, digite um nome.");
                     return;
                 }
-
-                String avatarSelecionado = "avatars/" + avatarNames[currentAvatarIndex];
+                String avatarSelecionado = avatarNames[currentAvatarIndex];
                 Jogador jogador = new Jogador(nome, avatarSelecionado);
-
                 gameFacade.iniciarFaseComJogador(jogador);
             }
         });
@@ -178,4 +175,5 @@ public class CharacterSelectionScreen implements Screen {
         skin.dispose();
     }
 }
+
 

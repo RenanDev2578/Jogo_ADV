@@ -1,128 +1,69 @@
 package br.guessing.game;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
 
-public class FaseCompletaScreen implements Screen {
+public class FaseCompletaScreen extends BaseScreen {
 
-    private GuessMaster game;
-    private Stage stage;
     private int acertos;
     private int total;
     private int proximaFase;
 
     private Texture backgroundTexture;
-    private BitmapFont kenneyFont;
-    private Skin skin;
+    private Image backgroundImage;
 
-    public FaseCompletaScreen(GuessMaster game, int acertos, int total, int proximaFase) {
-        this.game = game;
+    public FaseCompletaScreen(GuessMaster game, GameFacade facade, int acertos, int total, int proximaFase) {
+        super(game, facade.getJogador());
+
         this.acertos = acertos;
         this.total = total;
         this.proximaFase = proximaFase;
 
-        stage = new Stage(new ScreenViewport());
+
+        backgroundTexture = new Texture(Gdx.files.internal("fase" + proximaFase + ".png"));
+        backgroundImage = new Image(backgroundTexture);
+        backgroundImage.setFillParent(true);
+        stage.addActor(backgroundImage);
+    }
+
+    @Override
+    public void show() {
+        super.show();
         Gdx.input.setInputProcessor(stage);
-
-
-        kenneyFont = new BitmapFont(Gdx.files.internal("kenney.fnt"));
-
-
-        skin = new Skin(Gdx.files.internal("uiskin.json"));
-
-
-        Label.LabelStyle labelStyle = new Label.LabelStyle();
-        labelStyle.font = kenneyFont;
-        skin.add("default", labelStyle);
-
-
-        TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
-        textButtonStyle.up = skin.getDrawable("default-round");
-        textButtonStyle.down = skin.getDrawable("default-round-down");
-        textButtonStyle.font = kenneyFont;
-        skin.add("default", textButtonStyle);
-
-
-        backgroundTexture = new Texture(Gdx.files.internal("fase.png"));
-        Image background = new Image(backgroundTexture);
-        background.setFillParent(true);
-        stage.addActor(background);
-
 
         Table table = new Table();
         table.setFillParent(true);
         table.top().padTop(500);
-        //table.center();
+        stage.addActor(table);
 
-
-        Label titulo = new Label("Fase Completa! ", skin);
+        Label titulo = new Label("Fase Completa!", skin);
         titulo.setFontScale(1.5f);
+        titulo.setAlignment(Align.center);
 
         Label resultado = new Label("Você acertou " + acertos + " de " + total + " perguntas.", skin);
         resultado.setFontScale(1.2f);
+        resultado.setAlignment(Align.center);
 
         TextButton proximaButton = new TextButton("Próxima Fase", skin);
         proximaButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                ((GameFacade) game.getFacade()).trocarParaProximaFase(acertos, total);
+                facade.trocarParaProximaFase(acertos, total);
             }
         });
 
         table.add(titulo).padBottom(20).row();
         table.add(resultado).padBottom(30).row();
         table.add(proximaButton).width(220).height(60);
-
-        stage.addActor(table);
     }
-
-    @Override
-    public void show() {}
-
-    @Override
-    public void render(float delta) {
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        stage.act(delta);
-        stage.draw();
-    }
-
-    @Override
-    public void resize(int width, int height) {
-        stage.getViewport().update(width, height, true);
-    }
-
-    @Override
-    public void pause() {}
-
-    @Override
-    public void resume() {}
-
-    @Override
-    public void hide() {}
 
     @Override
     public void dispose() {
-        stage.dispose();
+        super.dispose();
         backgroundTexture.dispose();
-        kenneyFont.dispose();
-        skin.dispose();
     }
 }
-
-
-
-
-
-
-
-
