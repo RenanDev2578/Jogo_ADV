@@ -1,43 +1,30 @@
 package br.guessing.game.handlers;
 
-import br.guessing.game.Advinha;
-import br.guessing.game.GuessingGameScreen;
-
 public class VerifyAnswerHandler extends AnswerHandler {
 
     @Override
     protected boolean podeProcessar(AnswerContext context) {
-        return true; // Sempre processa
+        String resposta = context.getResposta();
+        if (resposta == null || resposta.isEmpty()) {
+            context.setMensagem("Nenhuma alternativa foi selecionada.");
+            return false;
+        }
+        return true;
     }
 
     @Override
     protected void processar(AnswerContext context) {
-        GuessingGameScreen screen = context.getScreen();
-        Advinha advinha = screen.getAdvinha();
+        String respostaUsuario = context.getResposta().trim().toLowerCase();
+        String respostaCorreta = context.getRespostaCorreta().trim().toLowerCase();
 
-        int fase = context.getFaseAtual();
-        int pergunta = context.getPerguntaAtual();
-        int escolhido = context.getIndiceEscolhido();
-        String[] alternativas = context.getAlternativas();
-
-        String respostaCorreta = advinha.getResposta(fase, pergunta);
-        String respostaUsuario = (escolhido >= 0 && escolhido < alternativas.length)
-            ? alternativas[escolhido]
-            : null;
-
-        boolean acertou = respostaUsuario != null && respostaCorreta.equalsIgnoreCase(respostaUsuario);
-
-        if (respostaUsuario == null) {
-            screen.mostrarFeedback("Tempo esgotado! Resposta: " + respostaCorreta, 1, 0, 0);
-        } else if (acertou) {
-            screen.mostrarFeedback("Correto!", 0, 1, 0);
+        if (respostaUsuario.equals(respostaCorreta)) {
+            context.setCorreta(true);
+            context.setMensagem("Resposta correta!");
         } else {
-            screen.mostrarFeedback("Errado! Resposta correta era: " + respostaCorreta, 1, 0, 0);
+            context.setCorreta(false);
+            context.setMensagem("Resposta incorreta. A resposta correta era: " + context.getRespostaCorreta());
         }
-
-        advinha.setUltimoResultado(acertou);
     }
 }
-
 
 
