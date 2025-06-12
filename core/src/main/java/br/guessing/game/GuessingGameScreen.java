@@ -144,10 +144,10 @@ public class GuessingGameScreen implements Screen {
     private void verificarResposta(int indiceEscolhido) {
         respostaRespondida = true;
 
-        // OBTÉM A RESPOSTA CORRETA USANDO advinha.getResposta()
+
         String correctAnswer = advinha.getResposta(faseAtual, perguntaAtual);
 
-        // PASSA A RESPOSTA CORRETA PARA O CONSTRUTOR DO AnswerContext
+
         AnswerContext context = new AnswerContext(this, faseAtual, perguntaAtual, alternativas, indiceEscolhido, correctAnswer);
 
         AnswerHandler chain = new VerifyAnswerHandler();
@@ -166,9 +166,9 @@ public class GuessingGameScreen implements Screen {
     private void finalizarFase() {
         if (acertosNaFase >= 2) {
             jogador.adicionarAcertos(acertosNaFase);
-            if (faseAtual < 6) { // Se ainda não é a última fase (6), avança
+            if (faseAtual < 6) {
                 facade.mostrarFaseCompleta(acertosNaFase, totalPerguntas, faseAtual + 1);
-            } else { // Se for a última fase (6), vai para a vitória
+            } else {
                 facade.trocarParaVictory();
             }
         } else {
@@ -196,10 +196,10 @@ public class GuessingGameScreen implements Screen {
             btn.setDisabled(true);
         }
 
-        // OBTÉM A RESPOSTA CORRETA USANDO advinha.getResposta() (mesmo se o tempo esgotar)
+
         String correctAnswer = advinha.getResposta(faseAtual, perguntaAtual);
 
-        // PASSA A RESPOSTA CORRETA PARA O CONSTRUTOR DO AnswerContext
+
         AnswerContext context = new AnswerContext(this, faseAtual, perguntaAtual, alternativas, -1, correctAnswer);
         AnswerHandler chain = new VerifyAnswerHandler();
         chain
