@@ -1,12 +1,21 @@
 package br.guessing.game;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+
 public class GameFacade {
     private GuessMaster game;
     private Jogador jogadorAtual;
     private int faseAtual = 1;
+    private Music backgroundMusic;
 
     public GameFacade(GuessMaster game) {
         this.game = game;
+
+        backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("audio/AdhesiveWombat - Night Shade.mp3"));
+        backgroundMusic.setLooping(true);
+        backgroundMusic.setVolume(0.3f);
+        backgroundMusic.play();
     }
 
     public void iniciarJogo() {
@@ -45,6 +54,34 @@ public class GameFacade {
 
     public void trocarParaVictory() {
         game.setScreen(new VictoryScreen(game, jogadorAtual, jogadorAtual.getAcertosTotais()));
+    }
+
+    public void pauseMusic() {
+        if(backgroundMusic != null && backgroundMusic.isPlaying()) {
+            backgroundMusic.pause();
+        }
+    }
+
+    public void resumeMusic() {
+        if(backgroundMusic != null && backgroundMusic.isPlaying()) {
+            backgroundMusic.play();
+        }
+    }
+
+    public void stopMusic() {
+        if (backgroundMusic != null) {
+            backgroundMusic.stop();
+        }
+    }
+
+    public void dispose() {
+        if (backgroundMusic != null) {
+            backgroundMusic.dispose();
+        }
+    }
+
+    public Music getBackgroundMusic() {
+        return backgroundMusic;
     }
 }
 

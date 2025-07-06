@@ -1,12 +1,14 @@
 package br.guessing.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 
 public class VictoryScreen extends BaseScreen {
     private int acertosTotais;
     private Skin skin;
+    private Music victoryMusic;
 
     public VictoryScreen(GuessMaster game, Jogador jogador, int acertosTotais) {
         super(game, jogador);
@@ -29,6 +31,11 @@ public class VictoryScreen extends BaseScreen {
 
         table.add(congratsLabel).padBottom(20).row();
         table.add(scoreLabel);
+
+        game.getFacade().stopMusic();
+        victoryMusic = Gdx.audio.newMusic(Gdx.files.internal("audio/victory.mp3"));
+        victoryMusic.setVolume(0.5f);
+        victoryMusic.play();
     }
 
     @Override
@@ -43,6 +50,10 @@ public class VictoryScreen extends BaseScreen {
         super.dispose();
         if (skin != null) {
             skin.dispose();
+        }
+
+        if(victoryMusic != null) {
+            victoryMusic.dispose();
         }
     }
 }

@@ -33,6 +33,10 @@ public class GameOverScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
         skin = new Skin(Gdx.files.internal("uiskin.json"));
 
+        if(game instanceof GuessMaster) {
+            ((GuessMaster) game).getFacade().getBackgroundMusic().setVolume(0.2f);
+        }
+
         Table table = new Table();
         table.setFillParent(true);
         stage.addActor(table);

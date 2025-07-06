@@ -218,6 +218,7 @@ public class GuessingGameScreen implements Screen {
 
     @Override
     public void show() {
+        facade.getBackgroundMusic().setVolume(0.3f);
         timerLabel = new Label("Tempo: " + (int) tempoRestante + "s", skin);
         table.add(timerLabel).padBottom(20).row();
     }

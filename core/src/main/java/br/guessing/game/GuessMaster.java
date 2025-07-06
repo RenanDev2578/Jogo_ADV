@@ -16,9 +16,15 @@ public class GuessMaster extends Game {
     @Override
     public void dispose() {
         if (batch != null) batch.dispose();
+
+        if (facade != null) {
+            facade.dispose();
+        }
+
         if (facade != null && facade.getJogador() != null) {
             facade.getJogador().dispose();
         }
+
         super.dispose();
     }
 
