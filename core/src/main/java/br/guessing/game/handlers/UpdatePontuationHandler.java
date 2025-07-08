@@ -11,5 +11,6 @@ public class UpdatePontuationHandler extends AnswerHandler {
     protected void processar(AnswerContext context) {
         context.getScreen().incrementarAcertos();
         context.getScreen().atualizarAcertosLabel();
+        context.getScreen().mostrarFeedback("Acertou!", 0, 0.5f, 0);
     }
 }

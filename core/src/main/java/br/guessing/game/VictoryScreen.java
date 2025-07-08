@@ -28,9 +28,15 @@ public class VictoryScreen extends BaseScreen {
 
         Label congratsLabel = new Label("Parabéns! Você venceu!", skin);
         Label scoreLabel = new Label("Acertos totais: " + acertosTotais, skin);
+        Label rankingTitle = new Label("Ranking (simulado)", skin);
+        Label ranking1 = new Label("1. Jogador A - 9 pts", skin);
+        Label ranking2 = new Label("2. Jogador B - 6 pts", skin);
 
         table.add(congratsLabel).padBottom(20).row();
-        table.add(scoreLabel);
+        table.add(scoreLabel).padBottom(30).row();
+        table.add(rankingTitle).padBottom(10).row();
+        table.add(ranking1).row();
+        table.add(ranking2).row();
 
         game.getFacade().stopMusic();
         victoryMusic = Gdx.audio.newMusic(Gdx.files.internal("audio/victory.mp3"));
@@ -48,15 +54,7 @@ public class VictoryScreen extends BaseScreen {
     @Override
     public void dispose() {
         super.dispose();
-        if (skin != null) {
-            skin.dispose();
-        }
-
-        if(victoryMusic != null) {
-            victoryMusic.dispose();
-        }
+        if (skin != null) skin.dispose();
+        if (victoryMusic != null) victoryMusic.dispose();
     }
 }
-
-
-

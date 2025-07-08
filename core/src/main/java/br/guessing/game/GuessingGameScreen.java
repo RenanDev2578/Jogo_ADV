@@ -46,6 +46,9 @@ public class GuessingGameScreen implements Screen {
     private Skin skin;
     private Table table;
 
+    private TextButton botaoMusica;
+    private Label labelMusica;
+
     public GuessingGameScreen(GuessMaster game, GameFacade facade, Jogador jogador, Advinha advinha, int fase) {
         this.game = game;
         this.facade = facade;
@@ -75,10 +78,10 @@ public class GuessingGameScreen implements Screen {
         TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
         buttonStyle.font = font;
         buttonStyle.fontColor = Color.BLACK;
-        buttonStyle.overFontColor = Color.DARK_GRAY;
-        buttonStyle.downFontColor = Color.DARK_GRAY;
+        buttonStyle.overFontColor = Color.BLACK;
+        buttonStyle.downFontColor = Color.BLACK;
         buttonStyle.checkedFontColor = Color.BLACK;
-        buttonStyle.disabledFontColor = Color.GRAY;
+        buttonStyle.disabledFontColor = Color.BLACK;
         buttonStyle.up = skin.getDrawable("default-round");
         buttonStyle.down = skin.getDrawable("default-round-down");
 
@@ -111,10 +114,39 @@ public class GuessingGameScreen implements Screen {
         } catch (Exception e) {
             avatarTexture = new Texture(Gdx.files.internal("avatars/default.png"));
         }
+
         avatarImage = new Image(new TextureRegionDrawable(new TextureRegion(avatarTexture)));
         avatarImage.setSize(100, 100);
         atualizarPosicaoAvatar();
         stage.addActor(avatarImage);
+
+
+        botaoMusica = new TextButton(facade.isMusicaLigada() ? "" : "", skin);
+        botaoMusica.setSize(60, 60);
+        botaoMusica.setPosition(10, stage.getViewport().getWorldHeight() - 70);
+        botaoMusica.getLabel().setColor(Color.BLUE);
+
+        botaoMusica.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (facade.isMusicaLigada()) {
+                    facade.desligarMusica();
+                    botaoMusica.setText("");
+                    labelMusica.setText("Ligar música");
+                } else {
+                    facade.ligarMusica();
+                    botaoMusica.setText("");
+                    labelMusica.setText("Desligar música");
+                }
+            }
+        });
+
+        stage.addActor(botaoMusica);
+
+        labelMusica = new Label(facade.isMusicaLigada() ? "Desligar música" : "Ligar música", new Label.LabelStyle(font, Color.BLACK));
+        labelMusica.setFontScale(1.2f);
+        labelMusica.setPosition(botaoMusica.getX(), botaoMusica.getY() - 30);
+        stage.addActor(labelMusica);
 
         carregarPergunta();
     }
@@ -144,9 +176,7 @@ public class GuessingGameScreen implements Screen {
     private void verificarResposta(int indiceEscolhido) {
         respostaRespondida = true;
 
-
         String correctAnswer = advinha.getResposta(faseAtual, perguntaAtual);
-
 
         AnswerContext context = new AnswerContext(this, faseAtual, perguntaAtual, alternativas, indiceEscolhido, correctAnswer);
 
@@ -181,12 +211,17 @@ public class GuessingGameScreen implements Screen {
             stage.getViewport().getWorldWidth() - avatarImage.getWidth() - 10,
             stage.getViewport().getWorldHeight() - avatarImage.getHeight() - 10
         );
+
+        if (botaoMusica != null) {
+            botaoMusica.setPosition(10, stage.getViewport().getWorldHeight() - botaoMusica.getHeight() - 10);
+            if (labelMusica != null) {
+                labelMusica.setPosition(botaoMusica.getX(), botaoMusica.getY() - 30);
+            }
+        }
     }
 
     private void tratarTempoEsgotado() {
-        if (respostaRespondida) {
-            return;
-        }
+        if (respostaRespondida) return;
 
         respostaRespondida = true;
         tempoEsgotado = true;
@@ -196,15 +231,11 @@ public class GuessingGameScreen implements Screen {
             btn.setDisabled(true);
         }
 
-
         String correctAnswer = advinha.getResposta(faseAtual, perguntaAtual);
-
 
         AnswerContext context = new AnswerContext(this, faseAtual, perguntaAtual, alternativas, -1, correctAnswer);
         AnswerHandler chain = new VerifyAnswerHandler();
-        chain
-            .setProximo(new UpdatePontuationHandler())
-            .setProximo(new ShowFeedbackHandler());
+        chain.setProximo(new ShowFeedbackHandler());
 
         chain.handle(context);
 
@@ -218,9 +249,15 @@ public class GuessingGameScreen implements Screen {
 
     @Override
     public void show() {
-        facade.getBackgroundMusic().setVolume(0.3f);
         timerLabel = new Label("Tempo: " + (int) tempoRestante + "s", skin);
+        timerLabel.setColor(Color.FIREBRICK);
         table.add(timerLabel).padBottom(20).row();
+
+        if (facade.isMusicaLigada()) {
+            facade.getBackgroundMusic().setVolume(0.3f);
+        } else {
+            facade.getBackgroundMusic().setVolume(0f);
+        }
     }
 
     @Override

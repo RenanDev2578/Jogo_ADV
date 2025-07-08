@@ -19,12 +19,9 @@ public class VerifyAnswerHandler extends AnswerHandler {
 
         if (respostaUsuario.equals(respostaCorreta)) {
             context.setCorreta(true);
-            context.setMensagem("Resposta correta!");
         } else {
             context.setCorreta(false);
-            context.setMensagem("Resposta incorreta. A resposta correta era: " + context.getRespostaCorreta());
+            context.getScreen().mostrarFeedback("Resposta incorreta! Correta: " + context.getRespostaCorreta(), 1, 0, 0); // Vermelho
         }
     }
 }
-
-

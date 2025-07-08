@@ -8,6 +8,7 @@ public class GameFacade {
     private Jogador jogadorAtual;
     private int faseAtual = 1;
     private Music backgroundMusic;
+    private boolean musicaLigada = true;
 
     public GameFacade(GuessMaster game) {
         this.game = game;
@@ -29,17 +30,14 @@ public class GameFacade {
     }
 
     public void mostrarFaseCompleta(int acertos, int total, int proximaFase) {
-
         game.setScreen(new FaseCompletaScreen(game, this, acertos, total, proximaFase));
     }
 
     public void trocarParaProximaFase(int acertosDaFase, int totalNaFase) {
         faseAtual++;
-
         if (faseAtual <= new Advinha().getTotalFases()) {
             game.setScreen(new GuessingGameScreen(game, this, jogadorAtual, new Advinha(), faseAtual));
         } else {
-
             game.setScreen(new VictoryScreen(game, jogadorAtual, jogadorAtual.getAcertosTotais()));
         }
     }
@@ -57,13 +55,13 @@ public class GameFacade {
     }
 
     public void pauseMusic() {
-        if(backgroundMusic != null && backgroundMusic.isPlaying()) {
+        if (backgroundMusic != null && backgroundMusic.isPlaying()) {
             backgroundMusic.pause();
         }
     }
 
     public void resumeMusic() {
-        if(backgroundMusic != null && backgroundMusic.isPlaying()) {
+        if (backgroundMusic != null && !backgroundMusic.isPlaying()) {
             backgroundMusic.play();
         }
     }
@@ -83,9 +81,23 @@ public class GameFacade {
     public Music getBackgroundMusic() {
         return backgroundMusic;
     }
+
+     //MÉTODOS  BOTÃO DE SOM//
+    public void desligarMusica() {
+        if (musicaLigada && backgroundMusic != null) {
+            backgroundMusic.pause();
+            musicaLigada = false;
+        }
+    }
+
+    public void ligarMusica() {
+        if (!musicaLigada && backgroundMusic != null) {
+            backgroundMusic.play();
+            musicaLigada = true;
+        }
+    }
+
+    public boolean isMusicaLigada() {
+        return musicaLigada;
+    }
 }
-
-
-
-
-

@@ -16,6 +16,6 @@ public class ShowFeedbackHandler extends AnswerHandler {
             public void run() {
                 context.getScreen().carregarProximaPergunta();
             }
-        }, 2); // Espera 2 segundos
+        }, 2);
     }
 }
