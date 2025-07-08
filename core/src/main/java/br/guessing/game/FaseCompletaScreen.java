@@ -12,17 +12,18 @@ public class FaseCompletaScreen extends BaseScreen {
     private int acertos;
     private int total;
     private int proximaFase;
+    private int pontuacaoDaFase;
 
     private Texture backgroundTexture;
     private Image backgroundImage;
 
-    public FaseCompletaScreen(GuessMaster game, GameFacade facade, int acertos, int total, int proximaFase) {
+    public FaseCompletaScreen(GuessMaster game, GameFacade facade, int acertos, int total, int proximaFase, int pontuacaoDaFase) {
         super(game, facade.getJogador());
 
         this.acertos = acertos;
         this.total = total;
         this.proximaFase = proximaFase;
-
+        this.pontuacaoDaFase = pontuacaoDaFase;  // CORREÇÃO AQUI
 
         backgroundTexture = new Texture(Gdx.files.internal("fase" + proximaFase + ".png"));
         backgroundImage = new Image(backgroundTexture);
@@ -40,13 +41,19 @@ public class FaseCompletaScreen extends BaseScreen {
         table.top().padTop(500);
         stage.addActor(table);
 
+        Label pontosLabel = new Label("Pontuação da fase: " + pontuacaoDaFase + " pts", skin);
+        pontosLabel.setFontScale(1.2f);
+        table.add(pontosLabel).padBottom(30).row();
+
         Label titulo = new Label("Fase Completa!", skin);
         titulo.setFontScale(1.5f);
         titulo.setAlignment(Align.center);
+        table.add(titulo).padBottom(20).row();
 
         Label resultado = new Label("Você acertou " + acertos + " de " + total + " perguntas.", skin);
         resultado.setFontScale(1.2f);
         resultado.setAlignment(Align.center);
+        table.add(resultado).padBottom(30).row();
 
         TextButton proximaButton = new TextButton("Próxima Fase", skin);
         proximaButton.addListener(new ClickListener() {
@@ -55,9 +62,6 @@ public class FaseCompletaScreen extends BaseScreen {
                 facade.trocarParaProximaFase(acertos, total);
             }
         });
-
-        table.add(titulo).padBottom(20).row();
-        table.add(resultado).padBottom(30).row();
         table.add(proximaButton).width(220).height(60);
     }
 

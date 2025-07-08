@@ -49,6 +49,8 @@ public class GuessingGameScreen implements Screen {
     private TextButton botaoMusica;
     private Label labelMusica;
 
+    private int pontuacaoAcumuladaDaFase = 0;
+
     public GuessingGameScreen(GuessMaster game, GameFacade facade, Jogador jogador, Advinha advinha, int fase) {
         this.game = game;
         this.facade = facade;
@@ -78,10 +80,6 @@ public class GuessingGameScreen implements Screen {
         TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
         buttonStyle.font = font;
         buttonStyle.fontColor = Color.BLACK;
-        buttonStyle.overFontColor = Color.BLACK;
-        buttonStyle.downFontColor = Color.BLACK;
-        buttonStyle.checkedFontColor = Color.BLACK;
-        buttonStyle.disabledFontColor = Color.BLACK;
         buttonStyle.up = skin.getDrawable("default-round");
         buttonStyle.down = skin.getDrawable("default-round-down");
 
@@ -119,7 +117,6 @@ public class GuessingGameScreen implements Screen {
         avatarImage.setSize(100, 100);
         atualizarPosicaoAvatar();
         stage.addActor(avatarImage);
-
 
         botaoMusica = new TextButton(facade.isMusicaLigada() ? "" : "", skin);
         botaoMusica.setSize(60, 60);
@@ -188,16 +185,40 @@ public class GuessingGameScreen implements Screen {
 
         chain.handle(context);
 
+        // ✅ Soma pontuação apenas se acertar
+        if (alternativas[indiceEscolhido].equals(correctAnswer)) {
+            int pontos = calcularPontuacao(faseAtual, perguntaAtual);
+            pontuacaoAcumuladaDaFase += pontos;
+            jogador.adicionarPontuacao(pontos);
+        }
+
         for (TextButton btn : botoesOpcoes) {
             btn.setDisabled(true);
         }
     }
 
+    private int calcularPontuacao(int fase, int pergunta) {
+        if (fase >= 1 && fase <= 5) {
+            switch (pergunta) {
+                case 0: return 20;
+                case 1: return 30;
+                case 2: return 50;
+            }
+        } else if (fase == 6) {
+            if (pergunta == 0 || pergunta == 1) return 10;
+            else return 20;
+        }
+        return 0;
+    }
+
     private void finalizarFase() {
         if (acertosNaFase >= 2) {
             jogador.adicionarAcertos(acertosNaFase);
+
+            jogador.adicionarPontuacao(pontuacaoAcumuladaDaFase);
+
             if (faseAtual < 6) {
-                facade.mostrarFaseCompleta(acertosNaFase, totalPerguntas, faseAtual + 1);
+                facade.mostrarFaseCompleta(acertosNaFase, totalPerguntas, faseAtual + 1, pontuacaoAcumuladaDaFase);
             } else {
                 facade.trocarParaVictory();
             }
@@ -283,12 +304,9 @@ public class GuessingGameScreen implements Screen {
         atualizarPosicaoAvatar();
     }
 
-    @Override
-    public void pause() {}
-    @Override
-    public void resume() {}
-    @Override
-    public void hide() {}
+    @Override public void pause() {}
+    @Override public void resume() {}
+    @Override public void hide() {}
 
     @Override
     public void dispose() {

@@ -29,8 +29,9 @@ public class GameFacade {
         game.setScreen(new GuessingGameScreen(game, this, jogadorAtual, new Advinha(), faseAtual));
     }
 
-    public void mostrarFaseCompleta(int acertos, int total, int proximaFase) {
-        game.setScreen(new FaseCompletaScreen(game, this, acertos, total, proximaFase));
+    // Correção aqui: adiciona pontuacaoDaFase como parâmetro
+    public void mostrarFaseCompleta(int acertos, int total, int proximaFase, int pontuacaoDaFase) {
+        game.setScreen(new FaseCompletaScreen(game, this, acertos, total, proximaFase, pontuacaoDaFase));
     }
 
     public void trocarParaProximaFase(int acertosDaFase, int totalNaFase) {
@@ -82,7 +83,7 @@ public class GameFacade {
         return backgroundMusic;
     }
 
-     //MÉTODOS  BOTÃO DE SOM//
+    // MÉTODOS BOTÃO DE SOM
     public void desligarMusica() {
         if (musicaLigada && backgroundMusic != null) {
             backgroundMusic.pause();

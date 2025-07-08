@@ -6,13 +6,15 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 
 public class VictoryScreen extends BaseScreen {
-    private int acertosTotais;
+    private final Jogador jogador;
+    private final int pontuacaoFinal;
     private Skin skin;
     private Music victoryMusic;
 
-    public VictoryScreen(GuessMaster game, Jogador jogador, int acertosTotais) {
+    public VictoryScreen(GuessMaster game, Jogador jogador, int pontuacaoFinal) {
         super(game, jogador);
-        this.acertosTotais = acertosTotais;
+        this.jogador = jogador;
+        this.pontuacaoFinal = pontuacaoFinal;
     }
 
     @Override
@@ -27,10 +29,11 @@ public class VictoryScreen extends BaseScreen {
         stage.addActor(table);
 
         Label congratsLabel = new Label("Parabéns! Você venceu!", skin);
-        Label scoreLabel = new Label("Acertos totais: " + acertosTotais, skin);
+        Label scoreLabel = new Label("Pontuação final: " + pontuacaoFinal + " pts", skin);
+
         Label rankingTitle = new Label("Ranking (simulado)", skin);
-        Label ranking1 = new Label("1. Jogador A - 9 pts", skin);
-        Label ranking2 = new Label("2. Jogador B - 6 pts", skin);
+        Label ranking1 = new Label("1. Jogador A - 300 pts", skin);
+        Label ranking2 = new Label("2. Jogador B - 250 pts", skin);
 
         table.add(congratsLabel).padBottom(20).row();
         table.add(scoreLabel).padBottom(30).row();
@@ -58,3 +61,4 @@ public class VictoryScreen extends BaseScreen {
         if (victoryMusic != null) victoryMusic.dispose();
     }
 }
+

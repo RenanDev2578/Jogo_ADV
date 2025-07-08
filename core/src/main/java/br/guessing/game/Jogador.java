@@ -6,7 +6,8 @@ public class Jogador {
     private final String nome;
     private int acertosTotais;
     private final Texture avatarTexture;
-    private final String avatarFileName; // Guarda só o nome do arquivo
+    private final String avatarFileName;
+    private int pontuacaoTotal = 0;
 
     public Jogador(String nome, String avatarFileName) {
         this.nome = nome;
@@ -31,6 +32,14 @@ public class Jogador {
         this.acertosTotais += quantidade;
     }
 
+    public void adicionarPontuacao(int pontos) {
+        this.pontuacaoTotal += pontos;
+    }
+
+    public int getPontuacaoTotal() {
+        return pontuacaoTotal;
+    }
+
     public void dispose() {
         avatarTexture.dispose();
     }
@@ -39,24 +48,7 @@ public class Jogador {
         return avatarFileName;
     }
 
-
     public String getAvatarPath() {
         return "avatars/" + avatarFileName;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
