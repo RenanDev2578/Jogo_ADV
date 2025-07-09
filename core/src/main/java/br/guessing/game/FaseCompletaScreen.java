@@ -57,7 +57,7 @@ public class FaseCompletaScreen extends BaseScreen {
         table.add(resultado).padBottom(30).row();
 
         // Lógica de recompensa
-        if (proximaFase > 1) {
+      /*  if (proximaFase > 1) {
             Jogador jogador = facade.getJogador();
             if (pontuacaoDaFase >= 90) {
                 jogador.adicionarRecompensa(TipoRecompensa.MAIS_TEMPO);
@@ -68,6 +68,19 @@ public class FaseCompletaScreen extends BaseScreen {
             } else if (pontuacaoDaFase >= 40) {
                 jogador.adicionarRecompensa(TipoRecompensa.DICA_LEVE);
             }
+        }*/ if (proximaFase > 1) {
+            Jogador jogador = facade.getJogador();
+
+            if (pontuacaoDaFase == 100) {
+                // Acertou tudo → ganha 2 recompensas
+                jogador.adicionarRecompensa(TipoRecompensa.MAIS_TEMPO);
+                jogador.adicionarRecompensa(TipoRecompensa.ELIMINAR_OPCAO);
+            } else if (pontuacaoDaFase == 75) {
+                jogador.adicionarRecompensa(TipoRecompensa.ELIMINAR_OPCAO);
+            } else if (pontuacaoDaFase == 50) {
+                jogador.adicionarRecompensa(TipoRecompensa.DICA_MEDIA);
+            }
+            // Nota: abaixo de 50 não recebe recompensa
         }
 
         TextButton proximaButton = new TextButton("Próxima Fase", skin);
