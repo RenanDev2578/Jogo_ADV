@@ -3,7 +3,7 @@ package br.guessing.game.handlers;
 public class AvancarPerguntaHandler extends AnswerHandler {
     @Override
     protected boolean podeProcessar(AnswerContext context) {
-        return true; // Sempre processa por último
+        return true;
     }
 
     @Override

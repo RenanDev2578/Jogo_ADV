@@ -21,7 +21,7 @@ public class VerifyAnswerHandler extends AnswerHandler {
             context.setCorreta(true);
         } else {
             context.setCorreta(false);
-            context.getScreen().mostrarFeedback("Resposta incorreta! Correta: " + context.getRespostaCorreta(), 1, 0, 0); // Vermelho
+            context.getScreen().mostrarFeedback("Resposta incorreta! Correta: " + context.getRespostaCorreta(), 1, 0, 0);
         }
     }
 }

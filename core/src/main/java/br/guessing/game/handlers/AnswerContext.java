@@ -10,27 +10,27 @@ public class AnswerContext {
     private final int indiceEscolhido;
 
     private boolean correta;
-    private String respostaCorreta; // Este campo
+    private String respostaCorreta;
     private String mensagem;
 
-    // Construtor modificado para incluir 'respostaCorreta'
+
     public AnswerContext(GuessingGameScreen screen, int faseAtual, int perguntaAtual, String[] alternativas, int indiceEscolhido, String respostaCorreta) {
         this.screen = screen;
         this.faseAtual = faseAtual;
         this.perguntaAtual = perguntaAtual;
         this.alternativas = alternativas;
         this.indiceEscolhido = indiceEscolhido;
-        this.respostaCorreta = respostaCorreta; // AGORA É INICIALIZADO AQUI!
+        this.respostaCorreta = respostaCorreta;
     }
 
-    // Getters
+
     public GuessingGameScreen getScreen() { return screen; }
     public int getFaseAtual() { return faseAtual; }
     public int getPerguntaAtual() { return perguntaAtual; }
     public String[] getAlternativas() { return alternativas; }
     public int getIndiceEscolhido() { return indiceEscolhido; }
 
-    // Correta e resposta correta
+
     public void setCorreta(boolean correta) {
         this.correta = correta;
     }
@@ -47,7 +47,6 @@ public class AnswerContext {
         return respostaCorreta;
     }
 
-    // Mensagem
     public void setMensagem(String s) {
         this.mensagem = s;
     }
@@ -56,7 +55,7 @@ public class AnswerContext {
         return mensagem;
     }
 
-    // Retorna a resposta escolhida pelo jogador
+
     public String getResposta() {
         if (respostaValida()) {
             return alternativas[indiceEscolhido];
@@ -64,7 +63,7 @@ public class AnswerContext {
         return null;
     }
 
-    // Validação do índice da resposta
+
     public boolean respostaValida() {
         return alternativas != null && indiceEscolhido >= 0 && indiceEscolhido < alternativas.length;
     }

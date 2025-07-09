@@ -23,7 +23,7 @@ public class FaseCompletaScreen extends BaseScreen {
         this.acertos = acertos;
         this.total = total;
         this.proximaFase = proximaFase;
-        this.pontuacaoDaFase = pontuacaoDaFase;  // CORREÇÃO AQUI
+        this.pontuacaoDaFase = pontuacaoDaFase;
 
         backgroundTexture = new Texture(Gdx.files.internal("fase" + proximaFase + ".png"));
         backgroundImage = new Image(backgroundTexture);
@@ -32,6 +32,7 @@ public class FaseCompletaScreen extends BaseScreen {
     }
 
     @Override
+
     public void show() {
         super.show();
         Gdx.input.setInputProcessor(stage);
@@ -55,6 +56,20 @@ public class FaseCompletaScreen extends BaseScreen {
         resultado.setAlignment(Align.center);
         table.add(resultado).padBottom(30).row();
 
+        // Lógica de recompensa
+        if (proximaFase > 1) {
+            Jogador jogador = facade.getJogador();
+            if (pontuacaoDaFase >= 90) {
+                jogador.adicionarRecompensa(TipoRecompensa.MAIS_TEMPO);
+            } else if (pontuacaoDaFase >= 80) {
+                jogador.adicionarRecompensa(TipoRecompensa.ELIMINAR_OPCAO);
+            } else if (pontuacaoDaFase >= 60) {
+                jogador.adicionarRecompensa(TipoRecompensa.DICA_MEDIA);
+            } else if (pontuacaoDaFase >= 40) {
+                jogador.adicionarRecompensa(TipoRecompensa.DICA_LEVE);
+            }
+        }
+
         TextButton proximaButton = new TextButton("Próxima Fase", skin);
         proximaButton.addListener(new ClickListener() {
             @Override
@@ -64,6 +79,7 @@ public class FaseCompletaScreen extends BaseScreen {
         });
         table.add(proximaButton).width(220).height(60);
     }
+
 
     @Override
     public void dispose() {

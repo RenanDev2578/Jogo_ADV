@@ -29,7 +29,7 @@ public class GameFacade {
         game.setScreen(new GuessingGameScreen(game, this, jogadorAtual, new Advinha(), faseAtual));
     }
 
-    // Correção aqui: adiciona pontuacaoDaFase como parâmetro
+
     public void mostrarFaseCompleta(int acertos, int total, int proximaFase, int pontuacaoDaFase) {
         game.setScreen(new FaseCompletaScreen(game, this, acertos, total, proximaFase, pontuacaoDaFase));
     }
