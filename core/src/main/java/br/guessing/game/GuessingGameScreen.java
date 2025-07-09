@@ -46,7 +46,7 @@ public class GuessingGameScreen implements Screen {
     private Skin skin;
     private Table table;
 
-    private TextButton botaoMusica;
+    private ImageButton botaoMusicaIcone;
     private Label labelMusica;
 
     private TextButton botaoDicaLeve;
@@ -186,31 +186,39 @@ public class GuessingGameScreen implements Screen {
         atualizarPosicaoAvatar();
         stage.addActor(avatarImage);
 
-        botaoMusica = new TextButton(facade.isMusicaLigada() ? "" : "", skin);
-        botaoMusica.setSize(60, 60);
-        botaoMusica.setPosition(10, stage.getViewport().getWorldHeight() - 70);
-        botaoMusica.getLabel().setColor(Color.BLUE);
+        // Carrega as texturas dos ícones de volume do som
+        Texture textureVolumeOn = new Texture(Gdx.files.internal("audio/volume-up.png"));
+        Texture textureMute = new Texture(Gdx.files.internal("audio/mute.png"));
 
-        botaoMusica.addListener(new ClickListener() {
+        TextureRegionDrawable drawableOn = new TextureRegionDrawable(new TextureRegion(textureVolumeOn));
+        TextureRegionDrawable drawableOff = new TextureRegionDrawable(new TextureRegion(textureMute));
+
+        // Escolhe o ícone com base no estado da música
+        botaoMusicaIcone = new ImageButton(facade.isMusicaLigada() ? drawableOn : drawableOff);
+        botaoMusicaIcone.setSize(50, 50);
+        botaoMusicaIcone.setPosition(10, stage.getViewport().getWorldHeight() - 60);
+
+        // Clique do botão
+        botaoMusicaIcone.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 if (facade.isMusicaLigada()) {
                     facade.desligarMusica();
-                    botaoMusica.setText("");
+                    botaoMusicaIcone.getStyle().imageUp = drawableOff;
                     labelMusica.setText("Ligar música");
                 } else {
                     facade.ligarMusica();
-                    botaoMusica.setText("");
+                    botaoMusicaIcone.getStyle().imageUp = drawableOn;
                     labelMusica.setText("Desligar música");
                 }
             }
         });
 
-        stage.addActor(botaoMusica);
+        stage.addActor(botaoMusicaIcone);
 
         labelMusica = new Label(facade.isMusicaLigada() ? "Desligar música" : "Ligar música", new Label.LabelStyle(font, Color.BLACK));
         labelMusica.setFontScale(1.2f);
-        labelMusica.setPosition(botaoMusica.getX(), botaoMusica.getY() - 30);
+        labelMusica.setPosition(botaoMusicaIcone.getX(), botaoMusicaIcone.getY() - 30);
         stage.addActor(labelMusica);
 
         carregarPergunta();
@@ -315,10 +323,10 @@ public class GuessingGameScreen implements Screen {
             stage.getViewport().getWorldHeight() - avatarImage.getHeight() - 10
         );
 
-        if (botaoMusica != null) {
-            botaoMusica.setPosition(10, stage.getViewport().getWorldHeight() - botaoMusica.getHeight() - 10);
+        if (botaoMusicaIcone != null) {
+            botaoMusicaIcone.setPosition(10, stage.getViewport().getWorldHeight() - botaoMusicaIcone.getHeight() - 10);
             if (labelMusica != null) {
-                labelMusica.setPosition(botaoMusica.getX(), botaoMusica.getY() - 30);
+                labelMusica.setPosition(10, stage.getViewport().getWorldHeight() - 90);
             }
         }
     }
