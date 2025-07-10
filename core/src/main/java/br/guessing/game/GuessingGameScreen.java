@@ -25,7 +25,7 @@ public class GuessingGameScreen implements Screen {
     private int perguntaAtual = 0;
     private int acertosNaFase = 0;
     private boolean respostaRespondida = false;
-
+    private Label labelRecompensas;
     private final Stage stage;
     private Label perguntaLabel;
     private Label feedbackLabel;
@@ -44,7 +44,8 @@ public class GuessingGameScreen implements Screen {
     private Image avatarImage;
 
     private Skin skin;
-    private Table table;
+    private Table tablePrincipal;
+    private Table tableInferior;
 
     private ImageButton botaoMusicaIcone;
     private Label labelMusica;
@@ -72,68 +73,7 @@ public class GuessingGameScreen implements Screen {
         background.setFillParent(true);
         stage.addActor(background);
 
-/*---------------------------------------------------------------*/
         skin = new Skin(Gdx.files.internal("uiskin.json"));
-        table = new Table();
-        table.setFillParent(true);
-        table.top().right().pad(10);
-        stage.addActor(table);
-
-        botaoDicaLeve = new TextButton("Usar Dica Leve", skin);
-        botaoDicaMedia = new TextButton("Usar Dica Média", skin);
-        botaoEliminar = new TextButton("Eliminar 2 Opções", skin);
-        botaoMaisTempo = new TextButton("Tempo Extra", skin);
-
-// Ações dos botões, o que cada um faz
-        botaoDicaLeve.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                if (jogador.usarRecompensa(TipoRecompensa.DICA_LEVE)) {
-                    String dica = gerarDica();
-                    mostrarFeedback("Dica: " + dica, 0, 0, 1); // Azul
-                    botaoDicaLeve.setVisible(false);
-                }
-            }
-        });
-
-        botaoDicaMedia.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                if (jogador.usarRecompensa(TipoRecompensa.DICA_MEDIA)) {
-                    eliminarOpcoesIncorretas(1);
-                    botaoDicaMedia.setVisible(false);
-                }
-            }
-        });
-
-        botaoEliminar.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                if (jogador.usarRecompensa(TipoRecompensa.ELIMINAR_OPCAO)) {
-                    eliminarOpcoesIncorretas(2);
-                    botaoEliminar.setVisible(false);
-                }
-            }
-        });
-
-        botaoMaisTempo.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                if (jogador.usarRecompensa(TipoRecompensa.MAIS_TEMPO)) {
-                    tempoRestante += 10;
-                    mostrarFeedback("Tempo extra ativado!", 0, 0.7f, 0); // Verde
-                    botaoMaisTempo.setVisible(false);
-                }
-            }
-        });
-
-        table.add(botaoDicaLeve).pad(5).row();
-        table.add(botaoDicaMedia).pad(5).row();
-        table.add(botaoEliminar).pad(5).padBottom(20).row();
-        table.add(botaoMaisTempo).pad(5).padBottom(20).row();
-/*------------------------------------------------------------------*/
-
-
 
         BitmapFont font = new BitmapFont();
         font.getData().setScale(2.0f);
@@ -142,22 +82,23 @@ public class GuessingGameScreen implements Screen {
         perguntaLabel = new Label("", labelStyle);
         feedbackLabel = new Label("", labelStyle);
         acertosLabel = new Label("Acertos: 0/" + totalPerguntas, labelStyle);
+        timerLabel = new Label("Tempo: " + (int) tempoRestante + "s", labelStyle);
+        timerLabel.setColor(Color.FIREBRICK);
 
-        skin = new Skin(Gdx.files.internal("uiskin.json"));
+        tablePrincipal = new Table();
+        tablePrincipal.setFillParent(true);
+        tablePrincipal.top().padTop(50);
+        stage.addActor(tablePrincipal);
+
+        tablePrincipal.add(acertosLabel).padBottom(20).colspan(1).row();
+        tablePrincipal.add(timerLabel).padBottom(20).colspan(1).row();
+        tablePrincipal.add(perguntaLabel).padBottom(20).row();
 
         TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
         buttonStyle.font = font;
         buttonStyle.fontColor = Color.BLACK;
         buttonStyle.up = skin.getDrawable("default-round");
         buttonStyle.down = skin.getDrawable("default-round-down");
-
-        table = new Table();
-        table.setFillParent(true);
-        table.center().padTop(50);
-        stage.addActor(table);
-
-        table.add(acertosLabel).padBottom(20).row();
-        table.add(perguntaLabel).padBottom(20).row();
 
         for (int i = 0; i < 5; i++) {
             final int indice = i;
@@ -170,10 +111,65 @@ public class GuessingGameScreen implements Screen {
                     }
                 }
             });
-            table.add(botoesOpcoes[i]).width(300).height(60).pad(10).center().row();
+            tablePrincipal.add(botoesOpcoes[i]).width(300).height(60).pad(10).center().row();
         }
 
-        table.add(feedbackLabel).padTop(10).row();
+        tablePrincipal.add(feedbackLabel).padTop(10).row();
+
+        tableInferior = new Table();
+        tableInferior.setFillParent(true);
+        tableInferior.bottom().padBottom(20);
+        stage.addActor(tableInferior);
+
+        labelRecompensas = new Label("SUAS RECOMPENSA(S):", new Label.LabelStyle(font, Color.BLACK));
+        tableInferior.add(labelRecompensas).colspan(4).padBottom(10).row();
+
+        botaoDicaLeve = new TextButton("Usar Dica Leve", skin);
+        botaoDicaMedia = new TextButton("Usar Dica Média", skin);
+        botaoEliminar = new TextButton("Eliminar 2 Opções", skin);
+        botaoMaisTempo = new TextButton("Tempo Extra", skin);
+
+        botaoDicaLeve.addListener(new ClickListener() {
+            @Override public void clicked(InputEvent event, float x, float y) {
+                if (jogador.usarRecompensa(TipoRecompensa.DICA_LEVE)) {
+                    mostrarFeedback("Dica: " + gerarDica(), 0, 0, 1);
+                    botaoDicaLeve.setVisible(false);
+                }
+            }
+        });
+
+        botaoDicaMedia.addListener(new ClickListener() {
+            @Override public void clicked(InputEvent event, float x, float y) {
+                if (jogador.usarRecompensa(TipoRecompensa.DICA_MEDIA)) {
+                    eliminarOpcoesIncorretas(1);
+                    botaoDicaMedia.setVisible(false);
+                }
+            }
+        });
+
+        botaoEliminar.addListener(new ClickListener() {
+            @Override public void clicked(InputEvent event, float x, float y) {
+                if (jogador.usarRecompensa(TipoRecompensa.ELIMINAR_OPCAO)) {
+                    eliminarOpcoesIncorretas(2);
+                    botaoEliminar.setVisible(false);
+                }
+            }
+        });
+
+        botaoMaisTempo.addListener(new ClickListener() {
+            @Override public void clicked(InputEvent event, float x, float y) {
+                if (jogador.usarRecompensa(TipoRecompensa.MAIS_TEMPO)) {
+                    tempoRestante += 10;
+                    mostrarFeedback("Tempo extra ativado!", 0, 0.7f, 0);
+                    botaoMaisTempo.setVisible(false);
+                }
+            }
+        });
+
+        tableInferior.add(botaoDicaLeve).pad(5);
+        tableInferior.add(botaoDicaMedia).pad(5);
+        tableInferior.add(botaoEliminar).pad(5);
+        tableInferior.add(botaoMaisTempo).pad(5);
 
         try {
             avatarTexture = new Texture(Gdx.files.internal("avatars/" + jogador.getAvatar()));
@@ -183,25 +179,24 @@ public class GuessingGameScreen implements Screen {
 
         avatarImage = new Image(new TextureRegionDrawable(new TextureRegion(avatarTexture)));
         avatarImage.setSize(100, 100);
-        atualizarPosicaoAvatar();
         stage.addActor(avatarImage);
 
-        // Carrega as texturas dos ícones de volume do som
         Texture textureVolumeOn = new Texture(Gdx.files.internal("audio/volume-up.png"));
         Texture textureMute = new Texture(Gdx.files.internal("audio/mute.png"));
 
         TextureRegionDrawable drawableOn = new TextureRegionDrawable(new TextureRegion(textureVolumeOn));
         TextureRegionDrawable drawableOff = new TextureRegionDrawable(new TextureRegion(textureMute));
 
-        // Escolhe o ícone com base no estado da música
         botaoMusicaIcone = new ImageButton(facade.isMusicaLigada() ? drawableOn : drawableOff);
         botaoMusicaIcone.setSize(50, 50);
-        botaoMusicaIcone.setPosition(10, stage.getViewport().getWorldHeight() - 60);
+        stage.addActor(botaoMusicaIcone);
 
-        // Clique do botão
+        labelMusica = new Label(facade.isMusicaLigada() ? "Desligar música" : "Ligar música", new Label.LabelStyle(font, Color.BLACK));
+        labelMusica.setFontScale(1.2f);
+        stage.addActor(labelMusica);
+
         botaoMusicaIcone.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
+            @Override public void clicked(InputEvent event, float x, float y) {
                 if (facade.isMusicaLigada()) {
                     facade.desligarMusica();
                     botaoMusicaIcone.getStyle().imageUp = drawableOff;
@@ -214,15 +209,10 @@ public class GuessingGameScreen implements Screen {
             }
         });
 
-        stage.addActor(botaoMusicaIcone);
-
-        labelMusica = new Label(facade.isMusicaLigada() ? "Desligar música" : "Ligar música", new Label.LabelStyle(font, Color.BLACK));
-        labelMusica.setFontScale(1.2f);
-        labelMusica.setPosition(botaoMusicaIcone.getX(), botaoMusicaIcone.getY() - 30);
-        stage.addActor(labelMusica);
-
+        atualizarPosicaoAvatar();
         carregarPergunta();
     }
+
 
     private void carregarPergunta() {
         if (perguntaAtual < totalPerguntas) {
@@ -231,82 +221,74 @@ public class GuessingGameScreen implements Screen {
             feedbackLabel.setColor(1, 1, 1, 1);
             respostaRespondida = false;
             tempoEsgotado = false;
+            tempoRestante = 30f;
 
             alternativas = advinha.getOpcoes(faseAtual, perguntaAtual);
-
             for (int i = 0; i < botoesOpcoes.length; i++) {
                 botoesOpcoes[i].setText((char) ('A' + i) + ": " + alternativas[i]);
                 botoesOpcoes[i].setDisabled(false);
                 botoesOpcoes[i].setVisible(true);
             }
+
+            botaoDicaLeve.setVisible(jogador.temRecompensa(TipoRecompensa.DICA_LEVE));
+            botaoDicaMedia.setVisible(jogador.temRecompensa(TipoRecompensa.DICA_MEDIA));
+            botaoEliminar.setVisible(jogador.temRecompensa(TipoRecompensa.ELIMINAR_OPCAO));
+            botaoMaisTempo.setVisible(jogador.temRecompensa(TipoRecompensa.MAIS_TEMPO));
         } else {
             finalizarFase();
         }
-
-        tempoRestante = 30f;
-
-
-        // Mostra os botões de recompensas
-        botaoDicaLeve.setVisible(jogador.temRecompensa(TipoRecompensa.DICA_LEVE));
-        botaoDicaMedia.setVisible(jogador.temRecompensa(TipoRecompensa.DICA_MEDIA));
-        botaoEliminar.setVisible(jogador.temRecompensa(TipoRecompensa.ELIMINAR_OPCAO));
-        botaoMaisTempo.setVisible(jogador.temRecompensa(TipoRecompensa.MAIS_TEMPO));
     }
 
     private void verificarResposta(int indiceEscolhido) {
         respostaRespondida = true;
-
         String correctAnswer = advinha.getResposta(faseAtual, perguntaAtual);
 
         AnswerContext context = new AnswerContext(this, faseAtual, perguntaAtual, alternativas, indiceEscolhido, correctAnswer);
-
         AnswerHandler chain = new VerifyAnswerHandler();
-        chain
-            .setProximo(new UpdatePontuationHandler())
+        chain.setProximo(new UpdatePontuationHandler())
             .setProximo(new ShowFeedbackHandler())
             .setProximo(new AvancarPerguntaHandler());
-
         chain.handle(context);
 
-        // Soma pontuação apenas se acertar
         if (alternativas[indiceEscolhido].equals(correctAnswer)) {
             int pontos = calcularPontuacao(faseAtual, perguntaAtual);
             pontuacaoAcumuladaDaFase += pontos;
             jogador.adicionarPontuacao(pontos);
         }
 
-        for (TextButton btn : botoesOpcoes) {
-            btn.setDisabled(true);
-        }
+        for (TextButton btn : botoesOpcoes) btn.setDisabled(true);
     }
+
     private int calcularPontuacao(int fase, int pergunta) {
         if (fase >= 1 && fase <= 5) {
             switch (pergunta) {
-                case 0: return 25;
-                case 1: return 25;
-                case 2: return 50;
+                case 0:
+                case 1:
+                    return 25;
+                case 2:
+                    return 50;
             }
         } else if (fase == 6) {
             switch (pergunta) {
-                case 0: return 10;
-                case 1: return 10;
-                case 2: return 25;
-                case 3: return 15;
-                case 4: return 20;
-                case 5: return 20;
+                case 0:
+                case 1:
+                    return 10;
+                case 2:
+                    return 25;
+                case 3:
+                    return 15;
+                case 4:
+                case 5:
+                    return 20;
             }
         }
         return 0;
     }
 
-
-
     private void finalizarFase() {
         if (acertosNaFase >= 2) {
             jogador.adicionarAcertos(acertosNaFase);
-
             jogador.adicionarPontuacao(pontuacaoAcumuladaDaFase);
-
             if (faseAtual < 6) {
                 facade.mostrarFaseCompleta(acertosNaFase, totalPerguntas, faseAtual + 1, pontuacaoAcumuladaDaFase);
             } else {
@@ -317,37 +299,18 @@ public class GuessingGameScreen implements Screen {
         }
     }
 
-    private void atualizarPosicaoAvatar() {
-        avatarImage.setPosition(
-            stage.getViewport().getWorldWidth() - avatarImage.getWidth() - 10,
-            stage.getViewport().getWorldHeight() - avatarImage.getHeight() - 10
-        );
-
-        if (botaoMusicaIcone != null) {
-            botaoMusicaIcone.setPosition(10, stage.getViewport().getWorldHeight() - botaoMusicaIcone.getHeight() - 10);
-            if (labelMusica != null) {
-                labelMusica.setPosition(10, stage.getViewport().getWorldHeight() - 90);
-            }
-        }
-    }
-
     private void tratarTempoEsgotado() {
         if (respostaRespondida) return;
-
         respostaRespondida = true;
         tempoEsgotado = true;
         mostrarFeedback("Tempo esgotado!", 1, 0, 0);
-
-        for (TextButton btn : botoesOpcoes) {
-            btn.setDisabled(true);
-        }
+        for (TextButton btn : botoesOpcoes) btn.setDisabled(true);
 
         String correctAnswer = advinha.getResposta(faseAtual, perguntaAtual);
-
         AnswerContext context = new AnswerContext(this, faseAtual, perguntaAtual, alternativas, -1, correctAnswer);
+
         AnswerHandler chain = new VerifyAnswerHandler();
         chain.setProximo(new ShowFeedbackHandler());
-
         chain.handle(context);
 
         Timer.schedule(new Timer.Task() {
@@ -357,17 +320,13 @@ public class GuessingGameScreen implements Screen {
             }
         }, 2);
     }
-/*----------------------------------------------------------------*/
 
     private String gerarDica() {
         String resposta = advinha.getResposta(faseAtual, perguntaAtual);
-        if (resposta.length() >= 3) {
-            return "Começa com: " + resposta.substring(0, 2).toUpperCase();
-        } else {
-            return "Tem " + resposta.length() + " letras.";
-        }
+        return resposta.length() >= 3 ?
+            "Começa com: " + resposta.substring(0, 2).toUpperCase() :
+            "Tem " + resposta.length() + " letras.";
     }
-
 
     private void eliminarOpcoesIncorretas(int quantidade) {
         int removidos = 0;
@@ -382,29 +341,24 @@ public class GuessingGameScreen implements Screen {
             if (removidos >= quantidade) break;
         }
 
-        //  Garante que pelo menos 2 opções permaneçam visíveis
         int visiveis = 0;
-        for (TextButton btn : botoesOpcoes) {
-            if (btn.isVisible()) visiveis++;
-        }
+        for (TextButton btn : botoesOpcoes) if (btn.isVisible()) visiveis++;
 
         if (visiveis < 2) {
-            for (TextButton btn : botoesOpcoes) {
-                btn.setVisible(true);
-            }
+            for (TextButton btn : botoesOpcoes) btn.setVisible(true);
             mostrarFeedback("Erro ao eliminar opções. Tentativa ignorada.", 1, 0.5f, 0);
         }
     }
 
-    /*-----------------------------------------------------------------------------*/
-
+    private void atualizarPosicaoAvatar() {
+        avatarImage.setPosition(stage.getViewport().getWorldWidth() - avatarImage.getWidth() - 10,
+            stage.getViewport().getWorldHeight() - avatarImage.getHeight() - 10);
+        botaoMusicaIcone.setPosition(10, stage.getViewport().getWorldHeight() - botaoMusicaIcone.getHeight() - 10);
+        labelMusica.setPosition(10, stage.getViewport().getWorldHeight() - 90);
+    }
 
     @Override
     public void show() {
-        timerLabel = new Label("Tempo: " + (int) tempoRestante + "s", skin);
-        timerLabel.setColor(Color.FIREBRICK);
-        table.add(timerLabel).padBottom(20).row();
-
         if (facade.isMusicaLigada()) {
             facade.getBackgroundMusic().setVolume(0.3f);
         } else {

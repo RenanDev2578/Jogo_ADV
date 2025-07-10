@@ -32,67 +32,73 @@ public class FaseCompletaScreen extends BaseScreen {
     }
 
     @Override
-
     public void show() {
         super.show();
         Gdx.input.setInputProcessor(stage);
 
         Table table = new Table();
         table.setFillParent(true);
-        table.top().padTop(500);
+        table.top().padTop(415);
         stage.addActor(table);
 
-        Label pontosLabel = new Label("Pontuação da fase: " + pontuacaoDaFase + " pts", skin);
-        pontosLabel.setFontScale(1.2f);
-        table.add(pontosLabel).padBottom(30).row();
-
         Label titulo = new Label("Fase Completa!", skin);
-        titulo.setFontScale(1.5f);
+        titulo.setFontScale(2f);
         titulo.setAlignment(Align.center);
-        table.add(titulo).padBottom(20).row();
+        table.add(titulo).padBottom(40).row();
 
-        Label resultado = new Label("Você acertou " + acertos + " de " + total + " perguntas.", skin);
-        resultado.setFontScale(1.2f);
+        Label resultado = new Label("Voce acertou " + acertos + " de " + total + " perguntas.", skin);
+        resultado.setFontScale(1.6f);
         resultado.setAlignment(Align.center);
         table.add(resultado).padBottom(30).row();
 
-        // Lógica de recompensa
-      /*  if (proximaFase > 1) {
+        Label pontosLabel = new Label("Pontuação da fase: " + pontuacaoDaFase + " pts", skin);
+        pontosLabel.setFontScale(1.6f);
+        pontosLabel.setAlignment(Align.center);
+        table.add(pontosLabel).padBottom(30).row();
+
+        // Exibir mensagem de recompensa, se houver
+        if (proximaFase > 1) {
             Jogador jogador = facade.getJogador();
-            if (pontuacaoDaFase >= 90) {
-                jogador.adicionarRecompensa(TipoRecompensa.MAIS_TEMPO);
-            } else if (pontuacaoDaFase >= 80) {
-                jogador.adicionarRecompensa(TipoRecompensa.ELIMINAR_OPCAO);
-            } else if (pontuacaoDaFase >= 60) {
-                jogador.adicionarRecompensa(TipoRecompensa.DICA_MEDIA);
-            } else if (pontuacaoDaFase >= 40) {
-                jogador.adicionarRecompensa(TipoRecompensa.DICA_LEVE);
-            }
-        }*/ if (proximaFase > 1) {
-            Jogador jogador = facade.getJogador();
+            boolean ganhouRecompensa = false;
 
             if (pontuacaoDaFase == 100) {
-                // Acertou tudo → ganha 2 recompensas
                 jogador.adicionarRecompensa(TipoRecompensa.MAIS_TEMPO);
                 jogador.adicionarRecompensa(TipoRecompensa.ELIMINAR_OPCAO);
+                ganhouRecompensa = true;
             } else if (pontuacaoDaFase == 75) {
                 jogador.adicionarRecompensa(TipoRecompensa.ELIMINAR_OPCAO);
+                ganhouRecompensa = true;
             } else if (pontuacaoDaFase == 50) {
                 jogador.adicionarRecompensa(TipoRecompensa.DICA_MEDIA);
+                ganhouRecompensa = true;
             }
-            // Nota: abaixo de 50 não recebe recompensa
+
+            if (ganhouRecompensa) {
+                Label tituloRecompensaLabel = new Label("Suas recompensa(s):", skin);
+                tituloRecompensaLabel.setFontScale(1.6f);
+                tituloRecompensaLabel.setAlignment(Align.center);
+                table.add(tituloRecompensaLabel).padBottom(15).row();
+
+                Label recompensaLabel = new Label("Voce ganhou recompensa(s)!", skin);
+                recompensaLabel.setFontScale(1.5f);
+                recompensaLabel.setAlignment(Align.center);
+                table.add(recompensaLabel).padBottom(40).row();
+            } else {
+                table.add().height(40).row();
+            }
+        } else {
+            table.add().height(40).row();
         }
 
-        TextButton proximaButton = new TextButton("Próxima Fase", skin);
+        TextButton proximaButton = new TextButton("Proxima Fase", skin);
         proximaButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 facade.trocarParaProximaFase(acertos, total);
             }
         });
-        table.add(proximaButton).width(220).height(60);
+        table.add(proximaButton).width(240).height(70);
     }
-
 
     @Override
     public void dispose() {

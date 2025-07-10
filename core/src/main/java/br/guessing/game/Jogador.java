@@ -47,6 +47,11 @@ public class Jogador {
         return pontuacaoTotal;
     }
 
+    // Novo método para definir a pontuação total
+    public void setPontuacaoTotal(int pontuacaoTotal) {
+        this.pontuacaoTotal = pontuacaoTotal;
+    }
+
     public void dispose() {
         avatarTexture.dispose();
     }
@@ -59,7 +64,7 @@ public class Jogador {
         return "avatars/" + avatarFileName;
     }
 
-  /*------------------------------------------------------*/
+    /*------------------------------------------------------*/
     // Métodos de recompensa
 
 
@@ -88,3 +93,5 @@ public class Jogador {
         return recompensas;
     }
 }
+
+

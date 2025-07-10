@@ -9,9 +9,12 @@ public class GameFacade {
     private int faseAtual = 1;
     private Music backgroundMusic;
     private boolean musicaLigada = true;
+    private RankingManager rankingManager;
 
     public GameFacade(GuessMaster game) {
         this.game = game;
+        this.rankingManager = new RankingManager();
+
 
         backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("audio/AdhesiveWombat - Night Shade.mp3"));
         backgroundMusic.setLooping(true);
@@ -20,9 +23,11 @@ public class GameFacade {
     }
 
     public void iniciarJogo() {
+        game.setScreen(new StartScreen(game, this));
+    }
+    public void trocarParaSelecaoDePersonagem() {
         game.setScreen(new CharacterSelectionScreen(game, this));
     }
-
     public void iniciarFaseComJogador(Jogador jogador) {
         this.jogadorAtual = jogador;
         faseAtual = 1;
@@ -39,7 +44,8 @@ public class GameFacade {
         if (faseAtual <= new Advinha().getTotalFases()) {
             game.setScreen(new GuessingGameScreen(game, this, jogadorAtual, new Advinha(), faseAtual));
         } else {
-            game.setScreen(new VictoryScreen(game, jogadorAtual, jogadorAtual.getAcertosTotais()));
+            game.setScreen(new VictoryScreen(game, jogadorAtual, jogadorAtual.getPontuacaoTotal(), rankingManager));
+            //game.setScreen(new VictoryScreen(game, jogadorAtual);
         }
     }
 
@@ -52,7 +58,8 @@ public class GameFacade {
     }
 
     public void trocarParaVictory() {
-        game.setScreen(new VictoryScreen(game, jogadorAtual, jogadorAtual.getAcertosTotais()));
+
+        game.setScreen(new VictoryScreen(game, jogadorAtual, jogadorAtual.getPontuacaoTotal(), rankingManager));
     }
 
     public void pauseMusic() {

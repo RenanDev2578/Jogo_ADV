@@ -20,16 +20,16 @@ public class RankingManager {
         this.jogadoresRanking = new ArrayList<>();
         loadRanking();
     }
-    // Remove o jogador se já existir para evitar duplicatas e atualizar a pontuação
-    public void adicionarOuAtualizarJogador(Jogador jogador) {
 
+    public void adicionarOuAtualizarJogador(Jogador jogador) {
+        // Remove o jogador se já existir para evitar duplicatas e atualizar a pontuação
         jogadoresRanking.removeIf(j -> j.getNome().equals(jogador.getNome()));
         jogadoresRanking.add(jogador);
         ordenarRanking();
+        // Garante que apenas os MAX_PLAYERS permaneçam no ranking
         if (jogadoresRanking.size() > MAX_PLAYERS) {
             jogadoresRanking.subList(MAX_PLAYERS, jogadoresRanking.size()).clear();
         }
-
     }
 
     private void ordenarRanking() {
@@ -37,7 +37,8 @@ public class RankingManager {
     }
 
     public List<Jogador> getTopJogadores() {
-        return Collections.unmodifiableList(jogadoresRanking);
+        // Retorna uma lista imutável dos top MAX_PLAYERS
+        return Collections.unmodifiableList(jogadoresRanking.subList(0, Math.min(jogadoresRanking.size(), MAX_PLAYERS)));
     }
 
     // Método público para salvar o ranking
@@ -46,7 +47,6 @@ public class RankingManager {
             Json json = new Json();
             json.setOutputType(JsonWriter.OutputType.json);
             FileHandle file = Gdx.files.local(RANKING_FILE);
-
 
             Array<RankingEntry> entries = new Array<>();
             for (Jogador j : jogadoresRanking) {
@@ -59,6 +59,7 @@ public class RankingManager {
             Gdx.app.error("RankingManager", "Erro ao salvar ranking: " + e.getMessage());
         }
     }
+
     // Criar jogador temporário apenas para o ranking
     private void loadRanking() {
         FileHandle file = Gdx.files.local(RANKING_FILE);
@@ -68,13 +69,18 @@ public class RankingManager {
                 Array<RankingEntry> entries = json.fromJson(Array.class, RankingEntry.class, file.readString());
 
                 for (RankingEntry entry : entries) {
-
+                    // Ao carregar, precisamos criar um Jogador com a pontuação correta
                     Jogador jogador = new Jogador(entry.nome, entry.avatar);
-                    jogador.adicionarPontuacao(entry.pontuacao);
+                    // Definir a pontuação total do jogador carregado
+                    jogador.setPontuacaoTotal(entry.pontuacao);
                     jogadoresRanking.add(jogador);
                 }
 
                 ordenarRanking();
+                // Limitar o ranking ao carregar também
+                if (jogadoresRanking.size() > MAX_PLAYERS) {
+                    jogadoresRanking.subList(MAX_PLAYERS, jogadoresRanking.size()).clear();
+                }
                 Gdx.app.log("RankingManager", "Ranking carregado com " + jogadoresRanking.size() + " jogadores");
             } catch (Exception e) {
                 Gdx.app.error("RankingManager", "Erro ao carregar ranking: " + e.getMessage());
@@ -97,4 +103,5 @@ public class RankingManager {
         }
     }
 }
+
 
